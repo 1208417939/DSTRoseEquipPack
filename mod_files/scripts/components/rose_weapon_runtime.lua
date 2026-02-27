@@ -1,5 +1,6 @@
 local damage_pipeline = require("rose_core/damage_pipeline")
 local progression_service = require("rose_core/progression_service")
+local constants = require("rose_core/rose_constants")
 
 local rose_weapon_runtime = Class(function(self, inst)
     self.inst = inst
@@ -84,6 +85,11 @@ function rose_weapon_runtime:SyncWeaponDamage()
         return
     end
 
+    if self:IsDurabilityBroken() then
+        self.inst.components.weapon:SetDamage(0)
+        return
+    end
+
     self.inst.components.weapon:SetDamage(self:GetCurrentDamage())
 end
 
@@ -124,6 +130,10 @@ function rose_weapon_runtime:IsEnabled()
     return self.runtime_config == nil or self.runtime_config.enabled ~= false
 end
 
+function rose_weapon_runtime:IsDurabilityBroken()
+    return self.inst ~= nil and self.inst:HasTag(constants.REPAIR_BROKEN_TAG)
+end
+
 function rose_weapon_runtime:GetAbilityConfig(ability_name)
     if self.runtime_config == nil or self.runtime_config.abilities == nil then
         return { enabled = true }
@@ -146,7 +156,7 @@ function rose_weapon_runtime:ResolveUpgradeValue(item)
 end
 
 function rose_weapon_runtime:CanAcceptUpgradeItem(item)
-    if item == nil or not self:IsEnabled() then
+    if item == nil or not self:IsEnabled() or self:IsDurabilityBroken() then
         return false
     end
 
@@ -231,7 +241,7 @@ end
 ---@param target ent
 ---@description 统一攻击链路：OnAttackPre -> ApplyAttackDamage -> OnAttackPost。
 function rose_weapon_runtime:OnAttack(inst, attacker, target)
-    if not self:IsEnabled() then
+    if not self:IsEnabled() or self:IsDurabilityBroken() then
         return
     end
 
@@ -259,7 +269,7 @@ end
 ---@return boolean
 ---@description 分发喂养事件给能力插件，并返回是否被处理。
 function rose_weapon_runtime:OnAcceptItem(inst, giver, item)
-    if not self:IsEnabled() then
+    if not self:IsEnabled() or self:IsDurabilityBroken() then
         return false
     end
 
@@ -288,7 +298,7 @@ end
 ---@return boolean
 ---@description 统一判定法术是否可施放，至少需要一个启用的法术处理器。
 function rose_weapon_runtime:CanCastSpell(inst, target, pos, doer)
-    if not self:IsEnabled() then
+    if not self:IsEnabled() or self:IsDurabilityBroken() then
         return false
     end
 
@@ -323,7 +333,7 @@ end
 ---@param doer ent|nil
 ---@description 分发法术施放事件给已启用的能力插件。
 function rose_weapon_runtime:OnCastSpell(inst, target, pos, doer)
-    if not self:IsEnabled() then
+    if not self:IsEnabled() or self:IsDurabilityBroken() then
         return
     end
 
@@ -354,7 +364,7 @@ end
 ---@return boolean
 ---@description 分发装备右键使用事件给已启用能力。
 function rose_weapon_runtime:OnUseItem(inst, doer)
-    if not self:IsEnabled() then
+    if not self:IsEnabled() or self:IsDurabilityBroken() then
         return false
     end
 
@@ -372,7 +382,7 @@ end
 ---@param owner ent|nil
 ---@description 分发装备事件给能力插件。
 function rose_weapon_runtime:OnEquip(owner)
-    if not self:IsEnabled() then
+    if not self:IsEnabled() or self:IsDurabilityBroken() then
         return
     end
 
@@ -392,6 +402,22 @@ function rose_weapon_runtime:OnUnequip(owner)
         if ability.OnUnequip ~= nil then
             ability.OnUnequip(self, owner, ability_entry.config)
         end
+    end
+end
+
+---@param owner ent|nil
+---@description 武器耐久归零后执行被动能力清理，避免损坏态仍然生效。
+function rose_weapon_runtime:OnDurabilityDepleted(owner)
+    self:OnUnequip(owner)
+    self:SyncWeaponDamage()
+end
+
+---@param owner ent|nil
+---@description 武器耐久被修复后恢复伤害，并在已装备时重新应用被动能力。
+function rose_weapon_runtime:OnDurabilityRestored(owner)
+    self:SyncWeaponDamage()
+    if owner ~= nil and self:IsEnabled() and not self:IsDurabilityBroken() then
+        self:OnEquip(owner)
     end
 end
 

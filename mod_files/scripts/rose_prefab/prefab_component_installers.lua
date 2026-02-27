@@ -1,6 +1,18 @@
 local rose_prefab_tuning = require("rose_prefab/rose_prefab_tuning")
+local constants = require("rose_core/rose_constants")
 
 local component_installers = {}
+
+local COMPAT_CONFIG_TABLE_KEYS = {
+    "ROSEAXE_CONFIG",
+    "ROSEGUNFLAG_CONFIG",
+    "ROSESCISSORS_CONFIG",
+    "ROSEPARASOL_CONFIG",
+    "ROSEFROSTWAND_CONFIG",
+    "OCEANTRIDENT_CONFIG",
+    "CROWSCYTHE_CONFIG",
+    "NATURETOOLSWAND_CONFIG",
+}
 
 local function ensure_component(inst, component_name)
     if inst.components[component_name] == nil then
@@ -61,6 +73,154 @@ local function resolve_combat_values(data_cfg)
     return base_damage, attack_range, planar_damage
 end
 
+local function read_tuning_table_value(table_key, key)
+    if TUNING == nil or type(TUNING[table_key]) ~= "table" then
+        return nil
+    end
+    return TUNING[table_key][key]
+end
+
+local function read_pack_config(key, default_value)
+    local value = read_tuning_table_value("ROSE_EQUIP_PACK_CONFIG", key)
+    if value ~= nil then
+        return value
+    end
+
+    for i = 1, #COMPAT_CONFIG_TABLE_KEYS do
+        value = read_tuning_table_value(COMPAT_CONFIG_TABLE_KEYS[i], key)
+        if value ~= nil then
+            return value
+        end
+    end
+
+    if TUNING ~= nil and key == constants.REPAIRABLE_CONFIG_KEY and TUNING.ROSE_EQUIP_PACK_REPAIRABLE_ENABLED ~= nil then
+        return TUNING.ROSE_EQUIP_PACK_REPAIRABLE_ENABLED
+    end
+
+    if type(GetModConfigData) ~= "function" then
+        return default_value
+    end
+
+    local ok, config_value = pcall(GetModConfigData, key)
+    if ok and config_value ~= nil then
+        return config_value
+    end
+    return default_value
+end
+
+local function is_repairable_mode_enabled(callbacks)
+    if callbacks ~= nil and callbacks.repairable_mode_enabled ~= nil then
+        return callbacks.repairable_mode_enabled ~= false
+    end
+    return read_pack_config(constants.REPAIRABLE_CONFIG_KEY, true) ~= false
+end
+
+local function get_equipped_owner(inst)
+    if inst == nil or inst.components == nil then
+        return nil
+    end
+
+    local equippable = inst.components.equippable
+    local inventoryitem = inst.components.inventoryitem
+    if equippable ~= nil and equippable:IsEquipped() and inventoryitem ~= nil then
+        return inventoryitem.owner
+    end
+    return nil
+end
+
+local function set_tool_action_tags(inst, tool_actions, enabled)
+    if type(tool_actions) ~= "table" then
+        return
+    end
+
+    for _, action_data in ipairs(tool_actions) do
+        local action_id = action_data ~= nil and action_data.action_id or nil
+        local action = action_id ~= nil and ACTIONS[action_id] or nil
+        if action ~= nil then
+            local tag = action.id .. "_tool"
+            if enabled then
+                inst:AddTag(tag)
+            else
+                inst:RemoveTag(tag)
+            end
+        end
+    end
+end
+
+local function apply_broken_equip_values(inst, data_cfg)
+    local equippable = inst.components.equippable
+    if equippable ~= nil then
+        equippable.walkspeedmult = 1
+        equippable.dapperness = 0
+    end
+
+    local planardamage = inst.components.planardamage
+    if planardamage ~= nil then
+        planardamage:SetBaseDamage(0)
+    end
+end
+
+local function restore_equip_values(inst, data_cfg)
+    local equippable = inst.components.equippable
+    if equippable ~= nil then
+        local walk_speed_multiplier, dapperness = resolve_equip_values(data_cfg)
+        equippable.walkspeedmult = walk_speed_multiplier
+        equippable.dapperness = dapperness
+    end
+
+    local _, _, planar_damage = resolve_combat_values(data_cfg)
+    local planardamage = inst.components.planardamage
+    if planardamage ~= nil then
+        planardamage:SetBaseDamage(planar_damage)
+    end
+end
+
+local function set_broken_state(inst, data_cfg, callbacks)
+    inst:AddTag(constants.REPAIR_BROKEN_TAG)
+
+    local weapon = inst.components.weapon
+    if weapon ~= nil then
+        weapon:SetDamage(0)
+    end
+
+    apply_broken_equip_values(inst, data_cfg)
+    set_tool_action_tags(inst, data_cfg.tool_actions, false)
+
+    local owner = get_equipped_owner(inst)
+    local runtime = inst.components.rose_weapon_runtime
+    if runtime ~= nil and runtime.OnDurabilityDepleted ~= nil then
+        runtime:OnDurabilityDepleted(owner)
+    end
+
+    if callbacks ~= nil and callbacks.on_durability_depleted ~= nil then
+        callbacks.on_durability_depleted(inst, owner)
+    end
+end
+
+local function clear_broken_state(inst, data_cfg, callbacks)
+    inst:RemoveTag(constants.REPAIR_BROKEN_TAG)
+    restore_equip_values(inst, data_cfg)
+    set_tool_action_tags(inst, data_cfg.tool_actions, true)
+
+    local owner = get_equipped_owner(inst)
+    local runtime = inst.components.rose_weapon_runtime
+    if runtime ~= nil and runtime.OnDurabilityRestored ~= nil then
+        runtime:OnDurabilityRestored(owner)
+    elseif runtime ~= nil and runtime.SyncWeaponDamage ~= nil then
+        runtime:SyncWeaponDamage()
+    else
+        local weapon = inst.components.weapon
+        if weapon ~= nil then
+            local base_damage = resolve_combat_values(data_cfg)
+            weapon:SetDamage(base_damage)
+        end
+    end
+
+    if callbacks ~= nil and callbacks.on_durability_restored ~= nil then
+        callbacks.on_durability_restored(inst, owner)
+    end
+end
+
 ---安装 prefab 通用组件，隔离装备层样板逻辑。
 ---@param inst ent
 ---@param data_cfg table
@@ -117,7 +277,24 @@ function component_installers.install_combat_components(inst, data_cfg, callback
     local max_uses = get_max_uses(data_cfg)
     finiteuses:SetMaxUses(max_uses)
     finiteuses:SetUses(max_uses)
-    finiteuses:SetOnFinished(inst.Remove)
+
+    if is_repairable_mode_enabled(callbacks) then
+        finiteuses:SetOnFinished(function(finished_inst)
+            set_broken_state(finished_inst, data_cfg, callbacks)
+        end)
+
+        local repairable = ensure_component(inst, "repairable")
+        repairable.repairmaterial = MATERIALS.NIGHTMARE
+        repairable.noannounce = true
+        repairable.onrepaired = function(repaired_inst, doer, repair_item)
+            clear_broken_state(repaired_inst, data_cfg, callbacks)
+            if callbacks.on_repaired ~= nil then
+                callbacks.on_repaired(repaired_inst, doer, repair_item)
+            end
+        end
+    else
+        finiteuses:SetOnFinished(inst.Remove)
+    end
 
     local planardamage = ensure_component(inst, "planardamage")
     planardamage:SetBaseDamage(planar_damage)
@@ -145,6 +322,10 @@ function component_installers.install_optional_components(inst, data_cfg, callba
                     finiteuses:SetConsumption(action, use_cost)
                 end
             end
+        end
+
+        if inst:HasTag(constants.REPAIR_BROKEN_TAG) then
+            set_tool_action_tags(inst, tool_actions, false)
         end
     end
 

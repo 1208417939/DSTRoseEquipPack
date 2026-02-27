@@ -45,6 +45,8 @@ local weapon_config_specs = {
 }
 
 local pack_config = {}
+pack_config.rose_equip_pack_repairable_enabled = GetModConfigData("rose_equip_pack_repairable_enabled")
+
 for _, config_spec in ipairs(weapon_config_specs) do
     local weapon_id = config_spec.weapon_id
     local weapon_enabled_key = weapon_id .. "_enabled"
@@ -68,6 +70,7 @@ TUNING.NATURETOOLSWAND_CONFIG = pack_config
 
 TUNING.ROSE_EQUIP_PACK_LANG = GetModConfigData("lang_rose_equip_pack")
 TUNING.ROSE_EQUIP_PACK_DIFFICULTY_MODE = GetModConfigData("rose_equip_pack_difficulty_mode") or "newbie"
+TUNING.ROSE_EQUIP_PACK_REPAIRABLE_ENABLED = pack_config.rose_equip_pack_repairable_enabled ~= false
 
 if TUNING.ROSE_EQUIP_PACK_LANG == "CHS" then
     modimport("scripts/util/rose_equip_strings_cns.lua")

@@ -103,6 +103,14 @@ configuration_options = {
     LanguageOption("lang_rose_equip_pack", "Pack Language"),
     Title("Difficulty"),
     DifficultyModeOption("rose_equip_pack_difficulty_mode", "Difficulty Mode"),
+    Title("Global Toggles"),
+    OnOffOption(
+        "rose_equip_pack_repairable_enabled",
+        "Repairable Mode (All Weapons)",
+        true,
+        cn and "开启后武器耐久归零不消失，可用修补材料恢复；归零期间功能完全禁用。"
+            or "When enabled, weapons do not disappear at 0 durability and can be repaired; functionality is fully disabled until repaired."
+    ),
 
     Title("Rose Axe Toggles"),
     OnOffOption("roseaxe_enabled", "Weapon Enabled", true, "Master switch for roseaxe runtime abilities."),
