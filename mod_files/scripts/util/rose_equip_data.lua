@@ -23,10 +23,10 @@ local equip_data = {
                 damage_multiplier_reduce_per_miss = 0.3,
             },
             aoe = {
-                enabled = false,
-                attack_radius = 4,
-                aoe_damage_multiplier = 0.5,
-                trigger_hit_count = 3,
+                enabled = true,
+                attack_radius = 6.5,
+                aoe_damage_multiplier = 0.7,
+                trigger_hit_count = 1,
                 trigger_window_time = 5,
             },
             fire = {
