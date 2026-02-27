@@ -25,6 +25,7 @@ local global_ability_order = {
     "walk_on_water",
     "fish_burst",
     "nightvision_toggle",
+    "shadow_oath",
     "sentient_talk",
     "collect",
 }

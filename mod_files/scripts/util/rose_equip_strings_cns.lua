@@ -82,6 +82,16 @@ STRINGS.CROWSCYTHE_TALK.REJECT = {
     "暗影只认得我的契约主！",
     "拿开脏手！把你剪碎喂影子！",
 }
+STRINGS.CROWSCYTHE_TALK.REJECT_SHADOW = {
+    "嘶——别逼我！",
+    "不行！那是更高的……！",
+    "不！会被……发现！",
+}
+STRINGS.CROWSCYTHE_TALK.REJECT_SHADOW_STRONGGRIP = {
+    "别！放开我！",
+    "不！不要！强握！我不敢……！",
+    "啊啊啊！",
+}
 
 -- nature tools wand
 STRINGS.NAMES.NATURETOOLSWAND = "自然法杖"

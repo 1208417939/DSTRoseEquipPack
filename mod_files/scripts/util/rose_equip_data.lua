@@ -1,10 +1,22 @@
 local equip_data = {
     crowscythe = {
         prefab_id = "crowscythe",
-        base_damage = 15,
+        base_damage = 10,
         attack_range = 2,
         walk_speed_multiplier = 1.25,
-        planar_damage = 30,
+        planar_damage = 20,
+        phase_planar_damage = {
+            day = 20,
+            dusk = 30,
+            night = 40,
+        },
+        shadow_reject = {
+            enabled = true,
+            respect_stronggrip = true,
+            drop_on_reject = true,
+            reject_cooldown = 0.35,
+            sound = "dontstarve/sanity/creature2/taunt",
+        },
         max_uses = 200,
         dapperness = -20 / 60,
         light_preset = "purple",
@@ -113,6 +125,21 @@ local equip_data = {
                 reject_cooldown = 2.5,
                 ground_event_chance = 0.35,
                 idle_ground_chance = 0.18,
+            },
+            shadow_oath = {
+                enabled = true,
+                phase_planar_damage = {
+                    day = 20,
+                    dusk = 30,
+                    night = 40,
+                },
+                shadow_reject = {
+                    enabled = true,
+                    respect_stronggrip = true,
+                    drop_on_reject = true,
+                    reject_cooldown = 0.35,
+                    sound = "dontstarve/sanity/creature2/taunt",
+                },
             },
         },
 

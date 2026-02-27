@@ -82,6 +82,16 @@ STRINGS.CROWSCYTHE_TALK.REJECT = {
     "Shadow recognizes only my contractor!",
     "Take your filthy hands away, before I shred you!",
 }
+STRINGS.CROWSCYTHE_TALK.REJECT_SHADOW = {
+    "Hiss... do not force me!",
+    "No! That one stands above.",
+    "No! We'll be found!",
+}
+STRINGS.CROWSCYTHE_TALK.REJECT_SHADOW_STRONGGRIP = {
+    "I cannot!",
+    "Don't grip me! I'd never!",
+    "Ahhhhhh!",
+}
 
 -- nature tools wand
 STRINGS.NAMES.NATURETOOLSWAND = "Nature Tool Wand"

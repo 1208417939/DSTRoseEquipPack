@@ -355,7 +355,9 @@ function rose_weapon_runtime:BuildAttackContext(inst, attacker, target)
         target = target,
         runtime = self,
         damage_multiplier = 1,
+        skip_runtime_damage = false,
         damage_result = nil,
+        flags = {},
     }
 end
 
@@ -378,6 +380,10 @@ end
 ---@param context table
 ---@description 执行一次攻击伤害结算，并回填 damage_result。
 function rose_weapon_runtime:ApplyAttackDamage(context)
+    if context.skip_runtime_damage == true then
+        return
+    end
+
     local attacker = context.attacker
     local target = context.target
     if attacker == nil or target == nil then
@@ -592,6 +598,16 @@ end
 ---@description 武器耐久被修复后恢复伤害，并在已装备时重新应用被动能力。
 function rose_weapon_runtime:OnDurabilityRestored(owner)
     self:SyncWeaponDamage()
+
+    if self:IsEnabled() and not self:IsDurabilityBroken() then
+        for _, ability_entry in ipairs(self.abilities) do
+            local ability = ability_entry.module
+            if ability.OnDurabilityRestored ~= nil and is_ability_enabled(ability_entry) then
+                ability.OnDurabilityRestored(self, owner, ability_entry.config)
+            end
+        end
+    end
+
     if owner ~= nil and self:IsEnabled() and not self:IsDurabilityBroken() then
         self:OnEquip(owner)
     end
