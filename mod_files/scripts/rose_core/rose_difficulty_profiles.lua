@@ -1,3 +1,21 @@
+local LUNAR_FORGE_RECIPE = {
+    tech = TECH.LUNARFORGING_TWO,
+    station_tag = "lunar_forge",
+    nounlock = true,
+}
+
+local SHADOW_FORGE_RECIPE = {
+    tech = TECH.SHADOWFORGING_TWO,
+    station_tag = "shadow_forge",
+    nounlock = true,
+}
+
+local ANCIENT_STATION_UNLOCK_RECIPE = {
+    tech = TECH.ANCIENT_FOUR,
+    station_tag = "ancient_station",
+    nounlock = false,
+}
+
 local difficulty_profiles = {
     newbie = {
         defaults = {
@@ -8,9 +26,7 @@ local difficulty_profiles = {
             combat = {
                 base_damage_multiplier = 1.0,
             },
-            recipe = {
-                tech = TECH.MAGIC_THREE,
-            },
+            recipe = LUNAR_FORGE_RECIPE,
         },
         weapon_overrides = {
             roseaxe = {
@@ -72,6 +88,9 @@ local difficulty_profiles = {
                         { "crow", 1 },
                         { "batbat", 1 },
                     },
+                    tech = SHADOW_FORGE_RECIPE.tech,
+                    station_tag = SHADOW_FORGE_RECIPE.station_tag,
+                    nounlock = SHADOW_FORGE_RECIPE.nounlock,
                 },
             },
             naturetoolswand = {
@@ -81,6 +100,9 @@ local difficulty_profiles = {
                         { "livinglog", 1 },
                         { "flint", 1 },
                     },
+                    tech = ANCIENT_STATION_UNLOCK_RECIPE.tech,
+                    station_tag = ANCIENT_STATION_UNLOCK_RECIPE.station_tag,
+                    nounlock = ANCIENT_STATION_UNLOCK_RECIPE.nounlock,
                 },
             },
         },
@@ -94,11 +116,7 @@ local difficulty_profiles = {
             combat = {
                 base_damage_multiplier = 1.1,
             },
-            recipe = {
-                tech = TECH.ANCIENT_FOUR,
-                station_tag = "ancient_station",
-                nounlock = true,
-            },
+            recipe = LUNAR_FORGE_RECIPE,
         },
         weapon_overrides = {
             roseaxe = {
@@ -162,6 +180,9 @@ local difficulty_profiles = {
                         { "crow", 1 },
                         { "horrorfuel", 2 },
                     },
+                    tech = SHADOW_FORGE_RECIPE.tech,
+                    station_tag = SHADOW_FORGE_RECIPE.station_tag,
+                    nounlock = SHADOW_FORGE_RECIPE.nounlock,
                 },
             },
             naturetoolswand = {
@@ -171,6 +192,9 @@ local difficulty_profiles = {
                         { "livinglog", 2 },
                         { "petals", 20 },
                     },
+                    tech = ANCIENT_STATION_UNLOCK_RECIPE.tech,
+                    station_tag = ANCIENT_STATION_UNLOCK_RECIPE.station_tag,
+                    nounlock = ANCIENT_STATION_UNLOCK_RECIPE.nounlock,
                 },
             },
         },

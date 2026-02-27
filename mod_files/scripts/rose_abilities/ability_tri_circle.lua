@@ -3,6 +3,7 @@ local ability = {
 }
 
 local TRI_STATE_MAP_KEY = "rose_tri_circle_state_map"
+local TRI_DEFAULT_INACTIVE_CLEAR_TIME = 8
 
 ---@param value any
 ---@param default_value number
@@ -39,11 +40,12 @@ local function get_weapon_tri_state(target, weapon)
             count = 0,
             fx_1 = nil,
             fx_2 = nil,
+            clear_task = nil,
         }
         target[TRI_STATE_MAP_KEY][weapon_key] = weapon_state
     end
 
-    return weapon_state
+    return weapon_state, weapon_key
 end
 
 ---@param weapon_state table
@@ -58,6 +60,56 @@ local function remove_circle_fx(weapon_state)
         weapon_state.fx_2:Remove()
         weapon_state.fx_2 = nil
     end
+end
+
+---@param weapon_state table
+---@description 取消三环超时清理任务，避免重复挂载。
+local function clear_inactive_cleanup_task(weapon_state)
+    local clear_task = weapon_state.clear_task
+    if clear_task ~= nil then
+        clear_task:Cancel()
+        weapon_state.clear_task = nil
+    end
+end
+
+---@param target table
+---@param weapon_key string
+---@description 清理指定武器在目标身上的三环状态（层数、特效、定时任务）。
+local function clear_weapon_tri_state(target, weapon_key)
+    local state_map = target[TRI_STATE_MAP_KEY]
+    if state_map == nil then
+        return
+    end
+
+    local weapon_state = state_map[weapon_key]
+    if weapon_state == nil then
+        return
+    end
+
+    clear_inactive_cleanup_task(weapon_state)
+    remove_circle_fx(weapon_state)
+
+    state_map[weapon_key] = nil
+    if next(state_map) == nil then
+        target[TRI_STATE_MAP_KEY] = nil
+    end
+end
+
+---@param target table
+---@param weapon_key string
+---@param weapon_state table
+---@param clear_time number
+---@description 刷新三环超时清理计时；在指定时间内未继续命中则自动清空该目标计数。
+local function refresh_inactive_cleanup_task(target, weapon_key, weapon_state, clear_time)
+    clear_inactive_cleanup_task(weapon_state)
+
+    if clear_time <= 0 then
+        return
+    end
+
+    weapon_state.clear_task = target:DoTaskInTime(clear_time, function(inst)
+        clear_weapon_tri_state(inst, weapon_key)
+    end)
 end
 
 ---@param target table
@@ -97,7 +149,8 @@ function ability.OnAttackPost(context, config)
         return
     end
 
-    local weapon_state = get_weapon_tri_state(target, weapon)
+    local weapon_state, weapon_key = get_weapon_tri_state(target, weapon)
+    local inactive_clear_time = math.max(0.1, get_number(config.inactive_clear_time, TRI_DEFAULT_INACTIVE_CLEAR_TIME))
     weapon_state.count = (weapon_state.count or 0) + 1
 
     if weapon_state.count == 1 and weapon_state.fx_1 == nil then
@@ -105,8 +158,6 @@ function ability.OnAttackPost(context, config)
     elseif weapon_state.count == 2 and weapon_state.fx_2 == nil then
         weapon_state.fx_2 = spawn_follower_fx(target, 2)
     elseif weapon_state.count >= 3 then
-        remove_circle_fx(weapon_state)
-
         local fx = SpawnPrefab("explode_small_slurtlehole")
         if fx ~= nil then
             fx.Transform:SetPosition(target.Transform:GetWorldPosition())
@@ -123,8 +174,11 @@ function ability.OnAttackPost(context, config)
             target.components.combat:GetAttacked(attacker, bonus_dmg)
         end
 
-        weapon_state.count = 0
+        clear_weapon_tri_state(target, weapon_key)
+        return
     end
+
+    refresh_inactive_cleanup_task(target, weapon_key, weapon_state, inactive_clear_time)
 end
 
 return ability
