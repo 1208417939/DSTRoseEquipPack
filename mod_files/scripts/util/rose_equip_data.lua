@@ -276,8 +276,9 @@ local equip_data = {
             giant_killer = {
                 enabled = true,
                 giant_health_threshold = 3000,
-                health_percent_threshold = 0.9,
+                health_percent_threshold = 0.3,
                 damage_multiplier = 1.1,
+                max_health_bonus_percent = 0.2,
             },
             hamstring = {
                 enabled = false,
