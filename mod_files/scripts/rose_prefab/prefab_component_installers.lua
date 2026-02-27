@@ -2,6 +2,12 @@ local rose_prefab_tuning = require("rose_prefab/rose_prefab_tuning")
 local constants = require("rose_core/rose_constants")
 
 local component_installers = {}
+local CROWSCYTHE_PREFAB = "crowscythe"
+local DURABILITY_LINE_KEYS = {
+    BROKEN_GENERIC = "BROKEN_GENERIC",
+    CROWSCYTHE_BROKEN_OWNER = "CROWSCYTHE_BROKEN_OWNER",
+    CROWSCYTHE_BROKEN_WEAPON = "CROWSCYTHE_BROKEN_WEAPON",
+}
 
 local COMPAT_CONFIG_TABLE_KEYS = {
     "ROSEAXE_CONFIG",
@@ -128,6 +134,52 @@ local function get_equipped_owner(inst)
     return nil
 end
 
+local function pick_line(line_data)
+    if type(line_data) == "string" and line_data ~= "" then
+        return line_data
+    end
+
+    if type(line_data) == "table" and #line_data > 0 then
+        return line_data[math.random(#line_data)]
+    end
+
+    return nil
+end
+
+local function get_durability_line(line_key)
+    if STRINGS == nil or type(STRINGS.ROSE_EQUIP_PACK_DURABILITY_LINES) ~= "table" then
+        return nil
+    end
+    return pick_line(STRINGS.ROSE_EQUIP_PACK_DURABILITY_LINES[line_key])
+end
+
+local function say_line(entity, line)
+    if line == nil or entity == nil or entity.components == nil then
+        return
+    end
+
+    local talker = entity.components.talker
+    if talker ~= nil then
+        talker:Say(line)
+    end
+end
+
+local function announce_broken_lines(inst, owner)
+    if owner == nil then
+        return
+    end
+
+    if inst ~= nil and inst.prefab == CROWSCYTHE_PREFAB then
+        local owner_line = get_durability_line(DURABILITY_LINE_KEYS.CROWSCYTHE_BROKEN_OWNER)
+            or get_durability_line(DURABILITY_LINE_KEYS.BROKEN_GENERIC)
+        say_line(owner, owner_line)
+        say_line(inst, get_durability_line(DURABILITY_LINE_KEYS.CROWSCYTHE_BROKEN_WEAPON))
+        return
+    end
+
+    say_line(owner, get_durability_line(DURABILITY_LINE_KEYS.BROKEN_GENERIC))
+end
+
 local function set_tool_action_tags(inst, tool_actions, enabled)
     if type(tool_actions) ~= "table" then
         return
@@ -195,6 +247,8 @@ local function set_broken_state(inst, data_cfg, callbacks)
     if callbacks ~= nil and callbacks.on_durability_depleted ~= nil then
         callbacks.on_durability_depleted(inst, owner)
     end
+
+    announce_broken_lines(inst, owner)
 end
 
 local function clear_broken_state(inst, data_cfg, callbacks)

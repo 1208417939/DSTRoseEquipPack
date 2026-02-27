@@ -48,17 +48,34 @@ local REPAIR_LINE_KEYS = {
     INVALID = "INVALID",
     SUCCESS = "SUCCESS",
 }
+local CROWSCYTHE_PREFAB = "crowscythe"
 
-local function get_repair_line(line_key)
-    if STRINGS == nil or type(STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES) ~= "table" then
-        return nil
+local function pick_line(line_data)
+    if type(line_data) == "string" and line_data ~= "" then
+        return line_data
     end
 
-    local line = STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES[line_key]
-    if type(line) == "string" and line ~= "" then
-        return line
+    if type(line_data) == "table" and #line_data > 0 then
+        return line_data[math.random(#line_data)]
     end
+
     return nil
+end
+
+local function get_repair_line(line_key, prefab_name)
+    if STRINGS == nil or type(STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES) ~= "table" then
+        return nil, false
+    end
+
+    local lines = STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES
+    if line_key == REPAIR_LINE_KEYS.SUCCESS and prefab_name == CROWSCYTHE_PREFAB then
+        local crowscythe_line = pick_line(lines.CROWSCYTHE_SUCCESS)
+        if crowscythe_line ~= nil then
+            return crowscythe_line, true
+        end
+    end
+
+    return pick_line(lines[line_key]), false
 end
 
 local function ensure_state_shape(self)
@@ -181,17 +198,20 @@ function rose_weapon_runtime:GetRepairConfig()
 end
 
 function rose_weapon_runtime:SayRepairLine(doer, line_key)
-    if doer == nil or doer.components == nil then
+    local prefab_name = self.inst ~= nil and self.inst.prefab or nil
+    local line, prefer_weapon_talker = get_repair_line(line_key, prefab_name)
+    if line == nil then
         return
     end
 
-    local talker = doer.components.talker
-    if talker == nil then
-        return
+    local talker = nil
+    if prefer_weapon_talker and self.inst ~= nil and self.inst.components ~= nil and self.inst.components.talker ~= nil then
+        talker = self.inst.components.talker
+    elseif doer ~= nil and doer.components ~= nil then
+        talker = doer.components.talker
     end
 
-    local line = get_repair_line(line_key)
-    if line ~= nil then
+    if talker ~= nil then
         talker:Say(line)
     end
 end

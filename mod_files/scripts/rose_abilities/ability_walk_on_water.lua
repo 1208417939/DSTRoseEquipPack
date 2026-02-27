@@ -8,8 +8,15 @@ local STATE_KEY_ENABLED = "enabled"
 local OWNER_CACHE_KEY = "walk_on_water_owner"
 local DURABILITY_TASK_CACHE_KEY = "walk_on_water_durability_task"
 local PREVIOUS_DROWNABLE_ENABLED_KEY = "previous_drownable_enabled"
+local WARNED_AT_FIVE_PERCENT_KEY = "warned_at_five_percent"
+local WARNED_AT_ONE_PERCENT_KEY = "warned_at_one_percent"
 local SECONDS_PER_MINUTE = 60
 local TOGGLE_SOUND = "dontstarve/wilson/equip_item"
+local ROSEPARASOL_PREFAB = "roseparasol"
+local WATER_WARNING_LINE_KEYS = {
+    ROSEPARASOL_LOW_DURABILITY_5 = "ROSEPARASOL_LOW_DURABILITY_5",
+    ROSEPARASOL_LOW_DURABILITY_1 = "ROSEPARASOL_LOW_DURABILITY_1",
+}
 
 ---@param owner ent
 ---@description 按 drownable 状态切换玩家碰撞层，支持海上行走与还原。
@@ -112,6 +119,96 @@ local function resolve_durability_cost_per_minute(config)
     return 0
 end
 
+local function pick_line(line_data)
+    if type(line_data) == "string" and line_data ~= "" then
+        return line_data
+    end
+
+    if type(line_data) == "table" and #line_data > 0 then
+        return line_data[math.random(#line_data)]
+    end
+
+    return nil
+end
+
+local function get_water_warning_line(line_key)
+    if STRINGS == nil or type(STRINGS.ROSE_EQUIP_PACK_WATER_WARNING_LINES) ~= "table" then
+        return nil
+    end
+
+    return pick_line(STRINGS.ROSE_EQUIP_PACK_WATER_WARNING_LINES[line_key])
+end
+
+local function say_owner_line(owner, line)
+    if line == nil or owner == nil or owner.components == nil then
+        return
+    end
+
+    local talker = owner.components.talker
+    if talker ~= nil then
+        talker:Say(line)
+    end
+end
+
+local function is_owner_over_water(owner)
+    if not is_valid_owner(owner) then
+        return false
+    end
+
+    if owner.components ~= nil and owner.components.drownable ~= nil and owner.components.drownable.IsOverWater ~= nil then
+        return owner.components.drownable:IsOverWater()
+    end
+
+    if owner.IsOnOcean ~= nil then
+        return owner:IsOnOcean(false)
+    end
+
+    return false
+end
+
+local function reset_low_durability_warning_state(runtime)
+    local state = runtime:GetAbilityState(ability.id)
+    state[WARNED_AT_FIVE_PERCENT_KEY] = false
+    state[WARNED_AT_ONE_PERCENT_KEY] = false
+end
+
+---@param runtime component_rose_weapon_runtime
+---@param owner ent|nil
+---@description 仅在海上状态下提示低耐久阈值，避免陆地或非阳伞误报。
+local function try_warn_low_durability(runtime, owner)
+    local inst = runtime ~= nil and runtime.inst or nil
+    if inst == nil or inst.prefab ~= ROSEPARASOL_PREFAB then
+        return
+    end
+
+    if not is_owner_over_water(owner) then
+        return
+    end
+
+    if inst.components == nil or inst.components.finiteuses == nil then
+        return
+    end
+
+    local percent = inst.components.finiteuses:GetPercent()
+    if type(percent) ~= "number" then
+        return
+    end
+
+    local state = runtime:GetAbilityState(ability.id)
+    if percent <= 0.01 then
+        if state[WARNED_AT_ONE_PERCENT_KEY] ~= true then
+            say_owner_line(owner, get_water_warning_line(WATER_WARNING_LINE_KEYS.ROSEPARASOL_LOW_DURABILITY_1))
+            state[WARNED_AT_ONE_PERCENT_KEY] = true
+        end
+        return
+    end
+
+    if percent <= 0.05 and state[WARNED_AT_FIVE_PERCENT_KEY] ~= true then
+        say_owner_line(owner, get_water_warning_line(WATER_WARNING_LINE_KEYS.ROSEPARASOL_LOW_DURABILITY_5))
+        state[WARNED_AT_FIVE_PERCENT_KEY] = true
+    end
+end
+
 ---@param runtime component_rose_weapon_runtime
 local function stop_durability_task(runtime)
     local task = runtime.cache[DURABILITY_TASK_CACHE_KEY]
@@ -156,6 +253,9 @@ local function consume_durability(runtime)
     end
 
     inst.components.finiteuses:Use(1)
+    local owner = get_owner(inst)
+    try_warn_low_durability(runtime, owner)
+
     if inst.components.finiteuses:GetUses() <= 0 then
         stop_durability_task(runtime)
     end
@@ -213,6 +313,7 @@ local function apply_walk_on_water(runtime, owner, config)
     refresh_owner_collision_mask(owner)
     set_enabled_state(runtime, true)
     start_durability_task(runtime, config)
+    try_warn_low_durability(runtime, owner)
 end
 
 ---@param runtime component_rose_weapon_runtime
@@ -261,6 +362,8 @@ end
 ---@param config table
 ---@description 装备时根据配置决定默认开关状态；玫瑰阳伞默认关闭。
 function ability.OnEquip(runtime, owner, config)
+    reset_low_durability_warning_state(runtime)
+
     local current_owner = get_owner(runtime.inst, owner)
     local previous_owner = runtime.cache[OWNER_CACHE_KEY]
 
