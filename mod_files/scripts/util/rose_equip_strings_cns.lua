@@ -32,6 +32,56 @@ STRINGS.RECIPE_DESC.OCEANTRIDENT = "海面上的雷鸣之矛。"
 STRINGS.NAMES.CROWSCYTHE = "乌鸦镰刀"
 STRINGS.CHARACTERS.GENERIC.DESCRIBE.CROWSCYTHE = "刀刃中仿佛回响着黑羽的低语。"
 STRINGS.RECIPE_DESC.CROWSCYTHE = "让乌鸦回应每一次挥舞。"
+STRINGS.CROWSCYTHE_TALK = STRINGS.CROWSCYTHE_TALK or {}
+STRINGS.CROWSCYTHE_TALK.DUSK_NIGHT = {
+    "日落了。大地在流血。",
+    "那颗大眼球又在天上发呆了。",
+    "嘘……黑暗在生长。",
+    "你的影子说，它受够你了。",
+    "靠着营火发抖的鹌鹑。",
+    "大星星眨眼，理智在下坠。",
+}
+STRINGS.CROWSCYTHE_TALK.GROUND = {
+    "泥土里有蝼蚁的臭味。",
+    "别把我丢在白光的视线里！",
+    "我在土里听到了远古哀嚎。",
+    "除了契约者，谁也别碰我！",
+}
+STRINGS.CROWSCYTHE_TALK.FULLMOON = {
+    "大眼球疯了，好刺眼……",
+    "月光是挤出的脓水。恶心。",
+    "瞪那么大也是个瞎子。",
+    "割破白光！挖出它的眼珠！",
+}
+STRINGS.CROWSCYTHE_TALK.NEWMOON = {
+    "眼睑合上了。黑暗即真理。",
+    "空气变甜了……虚无的味道。",
+    "影之主，今夜带走谁的命？",
+    "在月之盲点，我们即是神。",
+}
+STRINGS.CROWSCYTHE_TALK.NIGHTVISION_ON = {
+    "撕开伪装，直视绝望。",
+    "到处都是漆黑的剪影。",
+    "世界在流血，看清伤口吧。",
+}
+STRINGS.CROWSCYTHE_TALK.NIGHTVISION_OFF = {
+    "盲瞎的人最幸福。",
+    "真相就在合眼后的漆黑里。",
+    "闭上眼，它也还在看你。",
+}
+STRINGS.CROWSCYTHE_TALK.KILL_REGEN = {
+    "血是苦的，但灵魂很烫。",
+    "用黑羽缝补你，代价是理智。",
+    "生命轻得像一根黑羽毛。",
+    "你斩杀，我回收绝望。",
+    "刃口在发烫！下一个！",
+}
+STRINGS.CROWSCYTHE_TALK.REJECT = {
+    "你身上有月亮的臭味。滚！",
+    "想试试我切肉的锋利吗？",
+    "暗影只认得我的契约主！",
+    "拿开脏手！把你剪碎喂影子！",
+}
 
 -- nature tools wand
 STRINGS.NAMES.NATURETOOLSWAND = "自然法杖"

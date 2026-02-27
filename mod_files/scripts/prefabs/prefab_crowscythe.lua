@@ -167,6 +167,13 @@ local function fn()
     set_weapon_light(inst, is_light_enabled())
     inst._nightvision_enabled = net_bool(inst.GUID, "crowscythe._nightvision_enabled", nightvision_dirty_event)
 
+    inst:AddComponent("talker")
+    inst.components.talker.font = TALKINGFONT
+    inst.components.talker.fontsize = 30
+    inst.components.talker.symbol = "swap_object"
+    inst.components.talker.offset = Vector3(0, -220, 0)
+    inst.components.talker.colour = Vector3(0.45, 0.10, 0.60)
+
     inst.entity:SetPristine()
     inst:AddTag("nosteal")
 

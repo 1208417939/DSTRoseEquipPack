@@ -2,6 +2,8 @@ local ability = {
     id = "kill_regen",
 }
 
+local EVENT_SENTIENT_KILL_REGEN = "rose_sentient_kill_regen"
+
 ---@param value any
 ---@param default_value number
 ---@return number
@@ -16,8 +18,9 @@ end
 ---@param owner table
 ---@param data table
 ---@param config table
+---@param weapon_inst ent|nil
 ---@description 击杀事件触发的回调，基于目标最大生命值百分比为武器拥有者恢复生命。
-local function on_killed(owner, data, config)
+local function on_killed(owner, data, config, weapon_inst)
     if owner == nil or owner.components == nil or owner.components.health == nil then
         return
     end
@@ -35,7 +38,14 @@ local function on_killed(owner, data, config)
     local heal_multiplier = heal_percent / 100
     local victim_hp = math.ceil(victim.components.health.maxhealth)
     local heal = math.max(1, math.ceil(victim_hp * heal_multiplier))
-    owner.components.health:DoDelta(heal)
+    local applied_heal = owner.components.health:DoDelta(heal)
+    if weapon_inst ~= nil and applied_heal > 0 then
+        weapon_inst:PushEvent(EVENT_SENTIENT_KILL_REGEN, {
+            heal = applied_heal,
+            victim = victim,
+            owner = owner,
+        })
+    end
 end
 
 ---@param runtime table
@@ -54,7 +64,7 @@ function ability.OnEquip(runtime, owner, config)
 
     cache.kill_regen_owner = owner
     cache.kill_regen_callback = function(inst, data)
-        on_killed(inst, data, config)
+        on_killed(inst, data, config, runtime.inst)
     end
 
     owner:ListenForEvent("killed", cache.kill_regen_callback)

@@ -10,6 +10,7 @@ local DEFAULT_EXTRA_SANITY_DRAIN_PER_MIN = 10
 local SECONDS_PER_MINUTE = 60
 local TOGGLE_SOUND_ON = "dontstarve_DLC001/common/moggles_on"
 local TOGGLE_SOUND_OFF = "dontstarve_DLC001/common/moggles_off"
+local EVENT_SENTIENT_NIGHTVISION_TOGGLED = "rose_sentient_nightvision_toggled"
 
 local function get_owner(inst, fallback_owner)
     if fallback_owner ~= nil then
@@ -153,6 +154,10 @@ function ability.OnUseItem(context, config)
     set_enabled_state(runtime, enabled)
     runtime.cache[OWNER_CACHE_KEY] = owner
     apply_nightvision_state(runtime, owner, config, enabled, true)
+    inst:PushEvent(EVENT_SENTIENT_NIGHTVISION_TOGGLED, {
+        enabled = enabled,
+        owner = owner,
+    })
     context.handled = true
 end
 

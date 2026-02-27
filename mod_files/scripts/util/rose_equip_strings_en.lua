@@ -32,6 +32,56 @@ STRINGS.RECIPE_DESC.OCEANTRIDENT = "Thunder and tide in one strike."
 STRINGS.NAMES.CROWSCYTHE = "Crow Scythe"
 STRINGS.CHARACTERS.GENERIC.DESCRIBE.CROWSCYTHE = "The blade hums with black-feathered intent."
 STRINGS.RECIPE_DESC.CROWSCYTHE = "Let the crows answer every swing."
+STRINGS.CROWSCYTHE_TALK = STRINGS.CROWSCYTHE_TALK or {}
+STRINGS.CROWSCYTHE_TALK.DUSK_NIGHT = {
+    "Sunset again. The ground is bleeding.",
+    "That giant eye is staring blankly in the sky.",
+    "Hush... the dark is still growing.",
+    "Your shadow says it has had enough of you.",
+    "A campfire chick, shivering in fear.",
+    "The great star blinks, and sanity slips.",
+}
+STRINGS.CROWSCYTHE_TALK.GROUND = {
+    "The soil reeks of crawling vermin.",
+    "Do not leave me under that pale glare!",
+    "I hear ancient wails beneath the dirt.",
+    "No one but my contractor may touch me!",
+}
+STRINGS.CROWSCYTHE_TALK.FULLMOON = {
+    "That giant eye has gone mad. Blinding.",
+    "Moonlight is squeezed-out pus. Revolting.",
+    "So wide open, yet still blind.",
+    "Cut the white light apart! Gouge its eyes out!",
+}
+STRINGS.CROWSCYTHE_TALK.NEWMOON = {
+    "The eyelid closes. Darkness is truth.",
+    "The air tastes sweet... the flavor of void.",
+    "Lord of shadows, whose life tonight?",
+    "At the moon's blind spot, we are gods.",
+}
+STRINGS.CROWSCYTHE_TALK.NIGHTVISION_ON = {
+    "Strip the mask. Stare into despair.",
+    "Only black silhouettes remain.",
+    "The world is bleeding. See the wound.",
+}
+STRINGS.CROWSCYTHE_TALK.NIGHTVISION_OFF = {
+    "The blind are the happiest.",
+    "Truth waits behind closed eyes.",
+    "Close your eyes. It still watches.",
+}
+STRINGS.CROWSCYTHE_TALK.KILL_REGEN = {
+    "Blood is bitter, but souls run hot.",
+    "I stitch you up with black feathers. Mind the cost.",
+    "Life is light as a single black plume.",
+    "You kill. I harvest despair.",
+    "The edge is burning. Next one!",
+}
+STRINGS.CROWSCYTHE_TALK.REJECT = {
+    "You stink of moonlight. Leave!",
+    "Want to test how sharp I cut flesh?",
+    "Shadow recognizes only my contractor!",
+    "Take your filthy hands away, before I shred you!",
+}
 
 -- nature tools wand
 STRINGS.NAMES.NATURETOOLSWAND = "Nature Tool Wand"

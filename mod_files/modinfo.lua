@@ -209,6 +209,13 @@ configuration_options = {
 
     Title("Crow Scythe Toggles"),
     OnOffOption("crowscythe_enabled", "Weapon Enabled", true, "Master switch for crowscythe runtime abilities."),
+    OnOffOption(
+        "crowscythe_sentient_talk_enabled",
+        "Crow Talking",
+        true,
+        cn and "开启/关闭乌鸦镰刀的活物说话行为。"
+            or "Enable or disable sentient crow speech for the Crow Scythe."
+    ),
     -- OnOffOption("crowscythe_combo_enabled", "Combo", true),
     -- OnOffOption("crowscythe_critical_enabled", "Critical", true),
     -- OnOffOption("crowscythe_behead_enabled", "Behead", false),

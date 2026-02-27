@@ -31,6 +31,7 @@ local ability_ids = {
     "waterproof",
     "walk_on_water",
     "fish_burst",
+    "sentient_talk",
     "collect",
 }
 
