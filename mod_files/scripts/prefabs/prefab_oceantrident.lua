@@ -27,6 +27,22 @@ local sakura_fx_controller = sakura_fx.build_controller({
 })
 local inventory_image_controller = inventory_image_anim.build_controller(data_cfg.inventory_image_anim)
 
+local function reticule_target_function(_inst)
+    if ThePlayer == nil or ThePlayer.entity == nil then
+        local x, y, z = _inst.Transform:GetWorldPosition()
+        return Vector3(x, y, z)
+    end
+    return Vector3(ThePlayer.entity:LocalToWorldSpace(3.5, 0.001, 0))
+end
+
+local function reticule_valid_fn(_inst, _reticule, target_pos, _alwayspassable, _allowwater, _deployradius)
+    if target_pos == nil or TheWorld == nil or TheWorld.Map == nil then
+        return false
+    end
+    return TheWorld.Map:IsOceanAtPoint(target_pos.x, target_pos.y, target_pos.z, false)
+        and not TheWorld.Map:IsGroundTargetBlocked(target_pos)
+end
+
 local function is_light_enabled()
     return data_cfg.equip ~= nil and data_cfg.equip.light_enabled == true
 end
@@ -87,6 +103,26 @@ local function on_accept_item(inst, giver, item)
     end
 end
 
+local function on_cast_spell(inst, target, pos, doer)
+    local runtime = inst.components.rose_weapon_runtime
+    if runtime ~= nil then
+        runtime:OnCastSpell(inst, target, pos, doer)
+    end
+end
+
+local function can_cast_spell(doer, target, pos, spell_inst)
+    if spell_inst == nil or spell_inst.components == nil then
+        return false
+    end
+
+    local runtime = spell_inst.components.rose_weapon_runtime
+    if runtime == nil then
+        return false
+    end
+
+    return runtime:CanCastSpell(spell_inst, target, pos, doer)
+end
+
 local function on_pre_load(inst, _data)
     sakura_fx_controller.preload_restore(inst)
 end
@@ -114,11 +150,23 @@ local function fn()
     inst.AnimState:SetBuild(prefab_id)
     inst.AnimState:PlayAnimation("idle", true)
 
+    inst:AddComponent("reticule")
+    inst.components.reticule.targetfn = reticule_target_function
+    inst.components.reticule.twinstickcheckscheme = true
+    inst.components.reticule.twinstickmode = 1
+    inst.components.reticule.twinstickrange = 15
+    inst.components.reticule.ease = true
+    inst.components.reticule.ispassableatallpoints = true
+    inst.components.reticule.validfn = reticule_valid_fn
+
     prefab_tuning.apply_light_preset(inst, data_cfg.light_preset)
     set_weapon_light(inst, is_light_enabled())
 
     inst.entity:SetPristine()
     inst:AddTag("nosteal")
+    inst:AddTag("allow_action_on_impassable")
+    inst:AddTag("guitar")
+    inst.spelltype = "MUSIC"
 
     if not TheWorld.ismastersim then
         return inst
@@ -131,6 +179,8 @@ local function fn()
         can_accept_item = can_accept_item,
         on_accept_item = on_accept_item,
         on_inventory_dropped = on_inventory_dropped,
+        on_cast_spell = on_cast_spell,
+        can_cast_spell = can_cast_spell,
     }
 
     component_installers.install_common_components(inst, data_cfg, callbacks)

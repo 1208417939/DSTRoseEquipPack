@@ -295,6 +295,16 @@ local equip_data = {
             walk_on_water = {
                 enabled = false,
             },
+            fish_burst = {
+                enabled = true,
+                radius = 4,
+                durability_cost = 5,
+            },
+        },
+
+        spell = {
+            can_use_on_point = false,
+            can_use_on_point_water = true,
         },
 
         sakura_particle = {

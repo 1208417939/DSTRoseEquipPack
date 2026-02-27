@@ -29,6 +29,7 @@ local ability_ids = {
     "tri_circle",
     "waterproof",
     "walk_on_water",
+    "fish_burst",
     "collect",
 }
 

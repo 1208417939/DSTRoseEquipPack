@@ -23,6 +23,7 @@ local global_ability_order = {
     "tri_circle",
     "waterproof",
     "walk_on_water",
+    "fish_burst",
     "nightvision_toggle",
     "collect",
 }
