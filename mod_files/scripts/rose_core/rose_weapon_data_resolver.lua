@@ -1,5 +1,6 @@
 local equip_data = require("util/rose_equip_data")
 local difficulty_profiles = require("rose_core/rose_difficulty_profiles")
+local difficulty_mode = require("rose_core/rose_difficulty_mode")
 
 local resolver = {}
 
@@ -64,9 +65,10 @@ local function copy_repair_values(source)
 end
 
 local function get_active_mode()
-    local difficulty_mode = TUNING ~= nil and TUNING.ROSE_EQUIP_PACK_DIFFICULTY_MODE or nil
-    if type(difficulty_mode) == "string" and difficulty_profiles[difficulty_mode] ~= nil then
-        return difficulty_mode
+    local raw_mode = TUNING ~= nil and TUNING.ROSE_EQUIP_PACK_DIFFICULTY_MODE or nil
+    local normalized_mode = difficulty_mode.normalize(raw_mode)
+    if normalized_mode ~= nil and difficulty_profiles[normalized_mode] ~= nil then
+        return normalized_mode
     end
 
     return DEFAULT_DIFFICULTY_MODE

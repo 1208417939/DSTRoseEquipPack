@@ -1,4 +1,5 @@
 GLOBAL.setmetatable(env, { __index = function(_t, key) return GLOBAL.rawget(GLOBAL, key) end })
+local difficulty_mode = require("rose_core/rose_difficulty_mode")
 
 PrefabFiles = {
     "prefab_roseaxe",
@@ -69,7 +70,8 @@ TUNING.CROWSCYTHE_CONFIG = pack_config
 TUNING.NATURETOOLSWAND_CONFIG = pack_config
 
 TUNING.ROSE_EQUIP_PACK_LANG = GetModConfigData("lang_rose_equip_pack")
-TUNING.ROSE_EQUIP_PACK_DIFFICULTY_MODE = GetModConfigData("rose_equip_pack_difficulty_mode") or "newbie"
+local selected_difficulty_mode = difficulty_mode.normalize(GetModConfigData("rose_equip_pack_difficulty_mode"))
+TUNING.ROSE_EQUIP_PACK_DIFFICULTY_MODE = selected_difficulty_mode or "newbie"
 TUNING.ROSE_EQUIP_PACK_REPAIRABLE_ENABLED = pack_config.rose_equip_pack_repairable_enabled ~= false
 
 if TUNING.ROSE_EQUIP_PACK_LANG == "CHS" then

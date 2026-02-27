@@ -88,8 +88,9 @@ local function DifficultyModeOption(config_key, label)
     return {
         name = config_key,
         label = label,
-        hover = cn and "萌新：暗影操纵器配方。原版：完整远古站配方，且需在站旁制作。"
-            or "Newbie: Shadow Manipulator recipes. Vanilla: Ancient station only crafting.",
+        hover = cn
+            and "萌新：暗影操纵器配方。原版：除黑鸦镰刀/自然法杖外为辉煌铁匠铺；黑鸦镰刀为暗影术基座（以上均不可解锁，仅站旁制作）；自然法杖为完整远古站解锁。"
+            or "Newbie: Shadow Manipulator recipes. Vanilla: Most weapons use the Lunar Forge, Crow Scythe uses the Shadow Forge (both nounlock + station-only), and Nature Tools Wand stays Ancient Four unlock.",
         options = {
             { description = cn and "萌新" or "Newbie", data = "newbie" },
             { description = cn and "原版" or "Vanilla", data = "vanilla" },
