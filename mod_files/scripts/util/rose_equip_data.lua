@@ -182,15 +182,21 @@ local equip_data = {
                 collect_crop = true,
                 exclude_prefabs = {
                     flower = true,
+                    flower_evil = true,
+                },
+                exclude_product_prefabs = {
+                    petals = true,
+                    petals_evil = true,
+                    foliage = true,
                 },
             },
         },
 
         tool_actions = {
-            { action_id = "CHOP", effectiveness = 3 },
-            { action_id = "MINE", effectiveness = 2 },
-            { action_id = "DIG", effectiveness = 2 },
-            { action_id = "HAMMER", effectiveness = 1 },
+            { action_id = "CHOP", effectiveness = 1, use_cost = 1 },
+            { action_id = "MINE", effectiveness = 1, use_cost = 1 },
+            { action_id = "DIG", effectiveness = 1, use_cost = 1 },
+            { action_id = "HAMMER", effectiveness = 1, use_cost = 1 },
         },
 
         spell = {

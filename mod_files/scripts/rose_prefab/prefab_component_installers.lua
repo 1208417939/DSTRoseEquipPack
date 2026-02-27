@@ -133,11 +133,17 @@ function component_installers.install_optional_components(inst, data_cfg, callba
     local tool_actions = data_cfg.tool_actions
     if type(tool_actions) == "table" and #tool_actions > 0 then
         local tool = ensure_component(inst, "tool")
+        local finiteuses = inst.components.finiteuses
         for _, action_data in ipairs(tool_actions) do
             local action_id = action_data ~= nil and action_data.action_id or nil
             local action = action_id ~= nil and ACTIONS[action_id] or nil
             if action ~= nil then
                 tool:SetAction(action, action_data.effectiveness)
+
+                local use_cost = tonumber(action_data.use_cost)
+                if finiteuses ~= nil and use_cost ~= nil and use_cost > 0 then
+                    finiteuses:SetConsumption(action, use_cost)
+                end
             end
         end
     end
