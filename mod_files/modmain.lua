@@ -75,4 +75,50 @@ else
     modimport("scripts/util/rose_equip_strings_en.lua")
 end
 
+local function setup_roseparasol_useitem_action_text()
+    if ACTIONS == nil or ACTIONS.USEITEM == nil or STRINGS == nil or STRINGS.ACTIONS == nil then
+        return
+    end
+
+    local useitem_strings = STRINGS.ACTIONS.USEITEM
+    if type(useitem_strings) ~= "table" then
+        STRINGS.ACTIONS.USEITEM = {
+            GENERIC = useitem_strings or "Use",
+        }
+        useitem_strings = STRINGS.ACTIONS.USEITEM
+    elseif useitem_strings.GENERIC == nil then
+        useitem_strings.GENERIC = "Use"
+    end
+
+    if TUNING.ROSE_EQUIP_PACK_LANG == "CHS" then
+        useitem_strings.ROSEPARASOL_OPEN = "打开"
+        useitem_strings.ROSEPARASOL_CLOSE = "关闭"
+        useitem_strings.CROWSCYTHE_OPEN = "打开"
+        useitem_strings.CROWSCYTHE_CLOSE = "关闭"
+    else
+        useitem_strings.ROSEPARASOL_OPEN = "Open"
+        useitem_strings.ROSEPARASOL_CLOSE = "Close"
+        useitem_strings.CROWSCYTHE_OPEN = "Open"
+        useitem_strings.CROWSCYTHE_CLOSE = "Close"
+    end
+
+    local old_strfn = ACTIONS.USEITEM.strfn
+    ACTIONS.USEITEM.strfn = function(act)
+        local invobject = act ~= nil and act.invobject or nil
+        if invobject ~= nil and invobject.prefab == "roseparasol" then
+            return invobject:HasTag("rose_walk_on_water_enabled") and "ROSEPARASOL_CLOSE" or "ROSEPARASOL_OPEN"
+        end
+
+        if invobject ~= nil and invobject.prefab == "crowscythe" then
+            return invobject:HasTag("nightvision") and "CROWSCYTHE_CLOSE" or "CROWSCYTHE_OPEN"
+        end
+
+        if old_strfn ~= nil then
+            return old_strfn(act)
+        end
+    end
+end
+
+setup_roseparasol_useitem_action_text()
+
 modimport("scripts/util/rose_equip_recipes.lua")

@@ -164,6 +164,21 @@ function component_installers.install_optional_components(inst, data_cfg, callba
         end
     end
 
+    local insulator_cfg = type(data_cfg.insulator) == "table" and data_cfg.insulator or nil
+    if insulator_cfg ~= nil and insulator_cfg.enabled ~= false then
+        local insulation = tonumber(insulator_cfg.insulation)
+        if insulation ~= nil then
+            local insulator = ensure_component(inst, "insulator")
+            local mode = type(insulator_cfg.mode) == "string" and string.lower(insulator_cfg.mode) or "summer"
+            if mode == "winter" then
+                insulator:SetWinter()
+            else
+                insulator:SetSummer()
+            end
+            insulator:SetInsulation(insulation)
+        end
+    end
+
     if type(data_cfg.talker) == "table" and data_cfg.talker.enabled == true then
         ensure_component(inst, "talker")
     end

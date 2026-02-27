@@ -675,11 +675,19 @@ local equip_data = {
             },
             waterproof = {
                 enabled = true,
-                waterproof_percent = 80,
+                waterproof_percent = 100,
             },
             walk_on_water = {
                 enabled = true,
+                default_enabled = false,
+                durability_cost_per_minute = 5,
             },
+        },
+
+        insulator = {
+            enabled = true,
+            mode = "summer",
+            insulation = TUNING.INSULATION_LARGE,
         },
 
         sakura_particle = {

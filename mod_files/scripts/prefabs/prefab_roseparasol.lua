@@ -87,6 +87,16 @@ local function on_accept_item(inst, giver, item)
     end
 end
 
+local function on_use_item(inst)
+    local runtime = inst.components.rose_weapon_runtime
+    if runtime ~= nil then
+        local owner = inst.components.inventoryitem ~= nil and inst.components.inventoryitem.owner or nil
+        runtime:OnUseItem(inst, owner)
+    end
+
+    return false
+end
+
 local function on_pre_load(inst, _data)
     sakura_fx_controller.preload_restore(inst)
 end
@@ -131,6 +141,7 @@ local function fn()
         can_accept_item = can_accept_item,
         on_accept_item = on_accept_item,
         on_inventory_dropped = on_inventory_dropped,
+        on_use_item = on_use_item,
     }
 
     component_installers.install_common_components(inst, data_cfg, callbacks)
