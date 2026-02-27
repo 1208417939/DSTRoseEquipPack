@@ -44,6 +44,21 @@ local function build_ability_defaults_by_order(data, ordered_ability_ids)
     return defaults
 end
 
+local function copy_repair_values(source)
+    if type(source) ~= "table" then
+        return {}
+    end
+
+    local result = {}
+    for prefab, uses in pairs(source) do
+        local repair_uses = tonumber(uses)
+        if type(prefab) == "string" and repair_uses ~= nil and repair_uses > 0 then
+            result[prefab] = repair_uses
+        end
+    end
+    return result
+end
+
 local builder = {}
 
 ---@param weapon_key string The key in rose_equip_data (e.g., "roseaxe", "oceantrident")
@@ -57,6 +72,7 @@ function builder.build(weapon_key)
     local equip_cfg = weapon_data.equip or {}
     local combat_cfg = weapon_data.combat or {}
     local recipe_cfg = weapon_data.recipe_data or {}
+    local repair_cfg = weapon_data.repair or {}
 
     local ability_modules = {}
     for _, ability_id in ipairs(global_ability_order) do
@@ -88,6 +104,10 @@ function builder.build(weapon_key)
             },
         },
         recipe = recipe_cfg.ingredients or weapon_data.recipe_ingredients,
+        repair = {
+            enabled = repair_cfg.enabled == true,
+            values = copy_repair_values(repair_cfg.values or weapon_data.repair_values),
+        },
     }
 
     return result

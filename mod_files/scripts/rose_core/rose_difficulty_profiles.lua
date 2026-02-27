@@ -21,6 +21,11 @@ local difficulty_profiles = {
                         { "redgem", 1 },
                     },
                 },
+                repair = {
+                    values = {
+                        redgem = 250,
+                    },
+                },
             },
             rosegunflag = {
                 recipe = {
@@ -28,6 +33,11 @@ local difficulty_profiles = {
                         { "spear", 1 },
                         { "silk", 10 },
                         { "redgem", 1 },
+                    },
+                },
+                repair = {
+                    values = {
+                        redgem = 250,
                     },
                 },
             },
@@ -39,12 +49,22 @@ local difficulty_profiles = {
                         { "redgem", 1 },
                     },
                 },
+                repair = {
+                    values = {
+                        redgem = 250,
+                    },
+                },
             },
             rosefrostwand = {
                 recipe = {
                     ingredients = {
                         { "icestaff", 1 },
                         { "petals", 20 },
+                    },
+                },
+                repair = {
+                    values = {
+                        bluegem = 250,
                     },
                 },
             },
@@ -56,6 +76,11 @@ local difficulty_profiles = {
                         { "bluegem", 1 },
                     },
                 },
+                repair = {
+                    values = {
+                        bluegem = 350,
+                    },
+                },
             },
             oceantrident = {
                 recipe = {
@@ -63,6 +88,11 @@ local difficulty_profiles = {
                         { "goldenpitchfork", 1 },
                         { "petals", 20 },
                         { "bluegem", 1 },
+                    },
+                },
+                repair = {
+                    values = {
+                        bluegem = 200,
                     },
                 },
             },
@@ -73,6 +103,11 @@ local difficulty_profiles = {
                         { "batbat", 1 },
                     },
                 },
+                repair = {
+                    values = {
+                        nightmarefuel = 100,
+                    },
+                },
             },
             naturetoolswand = {
                 recipe = {
@@ -80,6 +115,11 @@ local difficulty_profiles = {
                         { "petals", 10 },
                         { "livinglog", 1 },
                         { "flint", 1 },
+                    },
+                },
+                repair = {
+                    values = {
+                        flint = 100,
                     },
                 },
             },
@@ -109,6 +149,12 @@ local difficulty_profiles = {
                         { "purebrilliance", 3 },
                     },
                 },
+                repair = {
+                    values = {
+                        redgem = 25,
+                        purebrilliance = 150,
+                    },
+                },
             },
             rosegunflag = {
                 recipe = {
@@ -116,6 +162,12 @@ local difficulty_profiles = {
                         { "spear", 1 },
                         { "silk", 10 },
                         { "purebrilliance", 3 },
+                    },
+                },
+                repair = {
+                    values = {
+                        redgem = 25,
+                        purebrilliance = 150,
                     },
                 },
             },
@@ -127,6 +179,12 @@ local difficulty_profiles = {
                         { "purebrilliance", 3 },
                     },
                 },
+                repair = {
+                    values = {
+                        redgem = 25,
+                        purebrilliance = 150,
+                    },
+                },
             },
             rosefrostwand = {
                 recipe = {
@@ -134,6 +192,12 @@ local difficulty_profiles = {
                         { "icestaff", 1 },
                         { "petals", 20 },
                         { "purebrilliance", 3 },
+                    },
+                },
+                repair = {
+                    values = {
+                        bluegem = 25,
+                        purebrilliance = 150,
                     },
                 },
             },
@@ -145,6 +209,13 @@ local difficulty_profiles = {
                         { "petals", 20 },
                     },
                 },
+                max_uses = 300,
+                repair = {
+                    values = {
+                        bluegem = 25,
+                        opalpreciousgem = 200,
+                    },
+                },
             },
             oceantrident = {
                 recipe = {
@@ -152,6 +223,11 @@ local difficulty_profiles = {
                         { "livinglog", 1 },
                         { "trident", 1 },
                         { "petals", 20 },
+                    },
+                },
+                repair = {
+                    values = {
+                        opalpreciousgem = 200,
                     },
                 },
             },
@@ -166,6 +242,12 @@ local difficulty_profiles = {
                     station_tag = "shadow_forge",
                     nounlock = true,
                 },
+                repair = {
+                    values = {
+                        horrorfuel = 200,
+                        nightmarefuel = 25,
+                    },
+                },
             },
             naturetoolswand = {
                 recipe = {
@@ -177,6 +259,11 @@ local difficulty_profiles = {
                     tech = TECH.ANCIENT_FOUR,
                     station_tag = "ancient_station",
                     nounlock = false,
+                },
+                repair = {
+                    values = {
+                        orangegem = 150,
+                    },
                 },
             },
         },

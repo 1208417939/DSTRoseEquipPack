@@ -77,7 +77,7 @@ local function can_accept_item(inst, item)
         return false
     end
 
-    return runtime:CanAcceptUpgradeItem(item)
+    return runtime:CanAcceptTradeItem(item)
 end
 
 local function on_accept_item(inst, giver, item)

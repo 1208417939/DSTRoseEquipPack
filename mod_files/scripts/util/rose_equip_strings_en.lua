@@ -37,3 +37,53 @@ STRINGS.RECIPE_DESC.CROWSCYTHE = "Let the crows answer every swing."
 STRINGS.NAMES.NATURETOOLSWAND = "Nature Tool Wand"
 STRINGS.CHARACTERS.GENERIC.DESCRIBE.NATURETOOLSWAND = "One wand to gather and work."
 STRINGS.RECIPE_DESC.NATURETOOLSWAND = "A wand shaped from the force of nature."
+
+-- repair lines
+STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES = STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES or {}
+STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES.FULL = "It's new, no repair needed."
+STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES.INVALID = "Maybe I should try a different material."
+STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES.SUCCESS = "Power of the rose, repair complete!"
+
+local function setup_useitem_action_text_en()
+    if ACTIONS == nil or ACTIONS.USEITEM == nil or STRINGS == nil or STRINGS.ACTIONS == nil then
+        return
+    end
+
+    local useitem_strings = STRINGS.ACTIONS.USEITEM
+    if type(useitem_strings) ~= "table" then
+        STRINGS.ACTIONS.USEITEM = {
+            GENERIC = useitem_strings or "Use",
+        }
+        useitem_strings = STRINGS.ACTIONS.USEITEM
+    elseif useitem_strings.GENERIC == nil then
+        useitem_strings.GENERIC = "Use"
+    end
+
+    useitem_strings.ROSEPARASOL_OPEN = "Open"
+    useitem_strings.ROSEPARASOL_CLOSE = "Close"
+    useitem_strings.CROWSCYTHE_OPEN = "Open"
+    useitem_strings.CROWSCYTHE_CLOSE = "Close"
+
+    if ACTIONS.USEITEM.rose_equip_pack_strfn_wrapped == true then
+        return
+    end
+
+    ACTIONS.USEITEM.rose_equip_pack_strfn_wrapped = true
+    local old_strfn = ACTIONS.USEITEM.strfn
+    ACTIONS.USEITEM.strfn = function(act)
+        local invobject = act ~= nil and act.invobject or nil
+        if invobject ~= nil and invobject.prefab == "roseparasol" then
+            return invobject:HasTag("rose_walk_on_water_enabled") and "ROSEPARASOL_CLOSE" or "ROSEPARASOL_OPEN"
+        end
+
+        if invobject ~= nil and invobject.prefab == "crowscythe" then
+            return invobject:HasTag("nightvision") and "CROWSCYTHE_CLOSE" or "CROWSCYTHE_OPEN"
+        end
+
+        if old_strfn ~= nil then
+            return old_strfn(act)
+        end
+    end
+end
+
+setup_useitem_action_text_en()

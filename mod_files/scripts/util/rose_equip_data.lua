@@ -607,7 +607,7 @@ local equip_data = {
     },
     roseparasol = {
         prefab_id = "roseparasol",
-        base_damage = 42,
+        base_damage = 25,
         attack_range = 1.5,
         walk_speed_multiplier = 1.25,
         planar_damage = 30,

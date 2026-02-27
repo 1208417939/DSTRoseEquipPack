@@ -43,6 +43,24 @@ local function is_ability_enabled(ability_entry)
     return ability_entry ~= nil and (ability_entry.config == nil or ability_entry.config.enabled ~= false)
 end
 
+local REPAIR_LINE_KEYS = {
+    FULL = "FULL",
+    INVALID = "INVALID",
+    SUCCESS = "SUCCESS",
+}
+
+local function get_repair_line(line_key)
+    if STRINGS == nil or type(STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES) ~= "table" then
+        return nil
+    end
+
+    local line = STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES[line_key]
+    if type(line) == "string" and line ~= "" then
+        return line
+    end
+    return nil
+end
+
 local function ensure_state_shape(self)
     self.state = self.state or {}
     self.state.progress = self.state.progress or {}
@@ -155,6 +173,129 @@ function rose_weapon_runtime:ResolveUpgradeValue(item)
     return progression_service.ResolveGoldValue(item)
 end
 
+function rose_weapon_runtime:GetRepairConfig()
+    if self.weapon_def == nil or type(self.weapon_def.repair) ~= "table" then
+        return nil
+    end
+    return self.weapon_def.repair
+end
+
+function rose_weapon_runtime:SayRepairLine(doer, line_key)
+    if doer == nil or doer.components == nil then
+        return
+    end
+
+    local talker = doer.components.talker
+    if talker == nil then
+        return
+    end
+
+    local line = get_repair_line(line_key)
+    if line ~= nil then
+        talker:Say(line)
+    end
+end
+
+function rose_weapon_runtime:CanAcceptRepairItem(item)
+    if self.inst == nil or self.inst._rose_repair_mode_enabled ~= true then
+        return false
+    end
+
+    if item == nil or type(item.prefab) ~= "string" then
+        return false
+    end
+
+    local repair_cfg = self:GetRepairConfig()
+    if repair_cfg == nil or repair_cfg.enabled == false then
+        return false
+    end
+
+    local repair_values = type(repair_cfg.values) == "table" and repair_cfg.values or nil
+    if repair_values == nil then
+        return false
+    end
+
+    local repair_uses = tonumber(repair_values[item.prefab])
+    if repair_uses == nil or repair_uses <= 0 then
+        return false
+    end
+
+    local finiteuses = self.inst.components ~= nil and self.inst.components.finiteuses or nil
+    return finiteuses ~= nil and finiteuses:GetPercent() < 1
+end
+
+function rose_weapon_runtime:GetRepairRejectLineKey(item)
+    if self.inst == nil or self.inst._rose_repair_mode_enabled ~= true then
+        return nil
+    end
+
+    if item == nil or type(item.prefab) ~= "string" then
+        return nil
+    end
+
+    local repair_cfg = self:GetRepairConfig()
+    if repair_cfg == nil or repair_cfg.enabled == false then
+        return nil
+    end
+
+    local repair_values = type(repair_cfg.values) == "table" and repair_cfg.values or nil
+    if repair_values == nil then
+        return nil
+    end
+
+    local repair_uses = tonumber(repair_values[item.prefab])
+    if repair_uses ~= nil and repair_uses > 0 then
+        local finiteuses = self.inst.components ~= nil and self.inst.components.finiteuses or nil
+        if finiteuses ~= nil and finiteuses:GetPercent() >= 1 then
+            return REPAIR_LINE_KEYS.FULL
+        end
+        return nil
+    end
+
+    if self:IsDurabilityBroken() then
+        return REPAIR_LINE_KEYS.INVALID
+    end
+
+    if self:CanAcceptUpgradeItem(item) then
+        return nil
+    end
+
+    return REPAIR_LINE_KEYS.INVALID
+end
+
+function rose_weapon_runtime:TryRepairByItem(item, doer)
+    if not self:CanAcceptRepairItem(item) then
+        return false
+    end
+
+    local was_broken = self:IsDurabilityBroken()
+    local repair_values = self.weapon_def.repair.values
+    local repair_uses = tonumber(repair_values[item.prefab]) or 0
+    if repair_uses <= 0 then
+        return false
+    end
+
+    local finiteuses = self.inst.components.finiteuses
+    local old_uses = finiteuses:GetUses()
+    finiteuses:Repair(repair_uses)
+    local new_uses = finiteuses:GetUses()
+    if new_uses <= old_uses then
+        return false
+    end
+
+    if self.inst._rose_on_repaired ~= nil then
+        self.inst._rose_on_repaired(self.inst, doer, item, was_broken)
+    end
+
+    self:SayRepairLine(doer, REPAIR_LINE_KEYS.SUCCESS)
+
+    if self.inst.SoundEmitter ~= nil then
+        self.inst.SoundEmitter:PlaySound("dontstarve/common/telebase_gemplace")
+    end
+
+    return true
+end
+
 function rose_weapon_runtime:CanAcceptUpgradeItem(item)
     if item == nil or not self:IsEnabled() or self:IsDurabilityBroken() then
         return false
@@ -166,6 +307,22 @@ function rose_weapon_runtime:CanAcceptUpgradeItem(item)
     end
 
     return progression_service.CanUpgradeByItem(item, upgrade_config.accepted_prefab)
+end
+
+function rose_weapon_runtime:CanAcceptTradeItem(item)
+    if not self:IsEnabled() then
+        return false
+    end
+
+    if self:CanAcceptRepairItem(item) then
+        return true
+    end
+
+    if self:IsDurabilityBroken() then
+        return false
+    end
+
+    return self:CanAcceptUpgradeItem(item)
 end
 
 function rose_weapon_runtime:ApplyProgress(delta, reason)
@@ -269,7 +426,15 @@ end
 ---@return boolean
 ---@description 分发喂养事件给能力插件，并返回是否被处理。
 function rose_weapon_runtime:OnAcceptItem(inst, giver, item)
-    if not self:IsEnabled() or self:IsDurabilityBroken() then
+    if not self:IsEnabled() then
+        return false
+    end
+
+    if self:TryRepairByItem(item, giver) then
+        return true
+    end
+
+    if self:IsDurabilityBroken() then
         return false
     end
 
@@ -289,6 +454,17 @@ function rose_weapon_runtime:OnAcceptItem(inst, giver, item)
     end
 
     return context.handled
+end
+
+function rose_weapon_runtime:OnRefuseItem(inst, giver, item)
+    if not self:IsEnabled() then
+        return
+    end
+
+    local line_key = self:GetRepairRejectLineKey(item)
+    if line_key ~= nil then
+        self:SayRepairLine(giver, line_key)
+    end
 end
 
 ---@param inst ent

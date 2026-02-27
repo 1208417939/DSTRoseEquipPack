@@ -37,3 +37,53 @@ STRINGS.RECIPE_DESC.CROWSCYTHE = "让乌鸦回应每一次挥舞。"
 STRINGS.NAMES.NATURETOOLSWAND = "自然法杖"
 STRINGS.CHARACTERS.GENERIC.DESCRIBE.NATURETOOLSWAND = "一杖在手，采集与作业都能完成。"
 STRINGS.RECIPE_DESC.NATURETOOLSWAND = "自然之力凝成的工具法杖。"
+
+-- repair lines
+STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES = STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES or {}
+STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES.FULL = "是新的，不需要修补。"
+STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES.INVALID = "也许我该换个材料。"
+STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES.SUCCESS = "玫瑰之力，修复成功！"
+
+local function setup_useitem_action_text_cns()
+    if ACTIONS == nil or ACTIONS.USEITEM == nil or STRINGS == nil or STRINGS.ACTIONS == nil then
+        return
+    end
+
+    local useitem_strings = STRINGS.ACTIONS.USEITEM
+    if type(useitem_strings) ~= "table" then
+        STRINGS.ACTIONS.USEITEM = {
+            GENERIC = useitem_strings or "Use",
+        }
+        useitem_strings = STRINGS.ACTIONS.USEITEM
+    elseif useitem_strings.GENERIC == nil then
+        useitem_strings.GENERIC = "Use"
+    end
+
+    useitem_strings.ROSEPARASOL_OPEN = "打开"
+    useitem_strings.ROSEPARASOL_CLOSE = "关闭"
+    useitem_strings.CROWSCYTHE_OPEN = "打开"
+    useitem_strings.CROWSCYTHE_CLOSE = "关闭"
+
+    if ACTIONS.USEITEM.rose_equip_pack_strfn_wrapped == true then
+        return
+    end
+
+    ACTIONS.USEITEM.rose_equip_pack_strfn_wrapped = true
+    local old_strfn = ACTIONS.USEITEM.strfn
+    ACTIONS.USEITEM.strfn = function(act)
+        local invobject = act ~= nil and act.invobject or nil
+        if invobject ~= nil and invobject.prefab == "roseparasol" then
+            return invobject:HasTag("rose_walk_on_water_enabled") and "ROSEPARASOL_CLOSE" or "ROSEPARASOL_OPEN"
+        end
+
+        if invobject ~= nil and invobject.prefab == "crowscythe" then
+            return invobject:HasTag("nightvision") and "CROWSCYTHE_CLOSE" or "CROWSCYTHE_OPEN"
+        end
+
+        if old_strfn ~= nil then
+            return old_strfn(act)
+        end
+    end
+end
+
+setup_useitem_action_text_cns()

@@ -46,6 +46,23 @@ local function copy_ingredients(source)
     return result
 end
 
+local function copy_repair_values(source)
+    if type(source) ~= "table" then
+        return {}
+    end
+
+    local result = {}
+    for prefab, uses in pairs(source) do
+        if type(prefab) == "string" then
+            local repair_uses = tonumber(uses)
+            if repair_uses ~= nil and repair_uses > 0 then
+                result[prefab] = repair_uses
+            end
+        end
+    end
+    return result
+end
+
 local function get_active_mode()
     local difficulty_mode = TUNING ~= nil and TUNING.ROSE_EQUIP_PACK_DIFFICULTY_MODE or nil
     if type(difficulty_mode) == "string" and difficulty_profiles[difficulty_mode] ~= nil then
@@ -131,6 +148,52 @@ local function build_recipe_data(weapon_data, profile_defaults, weapon_override)
     }
 end
 
+local function build_repair_data(weapon_data, profile_defaults, weapon_override)
+    local defaults = profile_defaults.repair or {}
+    local override = weapon_override.repair or {}
+    local source = type(weapon_data.repair) == "table" and weapon_data.repair or {}
+
+    local values = copy_repair_values(
+        pick_first_non_nil(
+            override.values,
+            weapon_override.repair_values,
+            defaults.values,
+            source.values,
+            weapon_data.repair_values
+        )
+    )
+
+    local has_values = next(values) ~= nil
+    local enabled = pick_first_non_nil(override.enabled, defaults.enabled, source.enabled, has_values)
+
+    return {
+        enabled = enabled ~= false and has_values,
+        values = values,
+    }
+end
+
+local function resolve_max_uses(weapon_data, profile_defaults, weapon_override)
+    local durability_defaults = profile_defaults.durability or {}
+    local durability_override = weapon_override.durability or {}
+
+    local max_uses = pick_first_non_nil(
+        durability_override.max_uses,
+        weapon_override.max_uses,
+        durability_defaults.max_uses,
+        weapon_data.max_uses
+    )
+
+    if max_uses == nil then
+        return nil
+    end
+
+    local number_value = get_number(max_uses, weapon_data.max_uses or 0)
+    if number_value <= 0 then
+        return nil
+    end
+    return math.floor(number_value)
+end
+
 local function resolve_profile_data(weapon_id, weapon_data)
     local profile = get_profile()
     local profile_defaults = profile.defaults or {}
@@ -141,10 +204,17 @@ local function resolve_profile_data(weapon_id, weapon_data)
     local equip_cfg = build_equip_data(weapon_data, profile_defaults, weapon_override)
     local combat_cfg = build_combat_data(weapon_data, profile_defaults, weapon_override)
     local recipe_cfg = build_recipe_data(weapon_data, profile_defaults, weapon_override)
+    local repair_cfg = build_repair_data(weapon_data, profile_defaults, weapon_override)
+    local max_uses = resolve_max_uses(weapon_data, profile_defaults, weapon_override)
 
     resolved.equip = equip_cfg
     resolved.combat = combat_cfg
     resolved.recipe_data = recipe_cfg
+    resolved.repair = repair_cfg
+    resolved.repair_values = repair_cfg.values
+    if max_uses ~= nil then
+        resolved.max_uses = max_uses
+    end
 
     resolved.light_enabled = equip_cfg.light_enabled
     resolved.speed_bonus_enabled = equip_cfg.speed_bonus_enabled

@@ -253,9 +253,19 @@ function component_installers.install_common_components(inst, data_cfg, callback
 
     local trader = ensure_component(inst, "trader")
     if callbacks.can_accept_item ~= nil then
-        trader:SetAbleToAcceptTest(callbacks.can_accept_item)
+        trader:SetAcceptTest(callbacks.can_accept_item)
     end
     trader.onaccept = callbacks.on_accept_item
+    if callbacks.on_refuse_item ~= nil then
+        trader:SetOnRefuse(callbacks.on_refuse_item)
+    else
+        trader:SetOnRefuse(function(trader_inst, giver, item)
+            local runtime = trader_inst.components ~= nil and trader_inst.components.rose_weapon_runtime or nil
+            if runtime ~= nil and runtime.OnRefuseItem ~= nil then
+                runtime:OnRefuseItem(trader_inst, giver, item)
+            end
+        end)
+    end
 end
 
 ---安装武器战斗相关组件（weapon/finiteuses/planardamage）。
@@ -279,20 +289,23 @@ function component_installers.install_combat_components(inst, data_cfg, callback
     finiteuses:SetUses(max_uses)
 
     if is_repairable_mode_enabled(callbacks) then
-        finiteuses:SetOnFinished(function(finished_inst)
-            set_broken_state(finished_inst, data_cfg, callbacks)
-        end)
+        inst._rose_repair_mode_enabled = true
+        inst._rose_on_repaired = function(repaired_inst, doer, repair_item, was_broken)
+            if was_broken then
+                clear_broken_state(repaired_inst, data_cfg, callbacks)
+            end
 
-        local repairable = ensure_component(inst, "repairable")
-        repairable.repairmaterial = MATERIALS.NIGHTMARE
-        repairable.noannounce = true
-        repairable.onrepaired = function(repaired_inst, doer, repair_item)
-            clear_broken_state(repaired_inst, data_cfg, callbacks)
             if callbacks.on_repaired ~= nil then
                 callbacks.on_repaired(repaired_inst, doer, repair_item)
             end
         end
+
+        finiteuses:SetOnFinished(function(finished_inst)
+            set_broken_state(finished_inst, data_cfg, callbacks)
+        end)
     else
+        inst._rose_repair_mode_enabled = false
+        inst._rose_on_repaired = nil
         finiteuses:SetOnFinished(inst.Remove)
     end
 
