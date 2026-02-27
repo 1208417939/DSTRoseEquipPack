@@ -92,7 +92,7 @@ local difficulty_profiles = {
                 speed_bonus_enabled = false,
             },
             combat = {
-                base_damage_multiplier = 1.1,
+                base_damage_multiplier = 1.0,
             },
             recipe = {
                 tech = TECH.LUNARFORGING_TWO,

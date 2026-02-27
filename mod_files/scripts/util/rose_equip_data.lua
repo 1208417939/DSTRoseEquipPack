@@ -1,10 +1,11 @@
 local equip_data = {
     crowscythe = {
         prefab_id = "crowscythe",
-        base_damage = 42,
+        base_damage = 15,
         attack_range = 2,
         walk_speed_multiplier = 1.25,
-        planar_damage = 20,
+        planar_damage = 30,
+        max_uses = 200,
         dapperness = -20 / 60,
         light_preset = "purple",
 
@@ -100,7 +101,8 @@ local equip_data = {
         base_damage = 17,
         attack_range = 2.5,
         walk_speed_multiplier = 1.25,
-        planar_damage = 20,
+        planar_damage = 0,
+        max_uses = 500,
         dapperness = 0,
         light_preset = "neutral",
 
@@ -215,10 +217,11 @@ local equip_data = {
     },
     oceantrident = {
         prefab_id = "oceantrident",
-        base_damage = 42,
+        base_damage = 30,
         attack_range = 1.8,
         walk_speed_multiplier = 1.25,
-        planar_damage = 20,
+        planar_damage = 30,
+        max_uses = 200,
         dapperness = 0,
         light_preset = "cool",
 
@@ -283,7 +286,7 @@ local equip_data = {
                 enabled = true,
                 giant_health_threshold = 3000,
                 health_percent_threshold = 0.3,
-                damage_multiplier = 1.1,
+                damage_multiplier = 1.5,
                 max_health_bonus_percent = 0.2,
             },
             hamstring = {
@@ -324,10 +327,11 @@ local equip_data = {
     },
     roseaxe = {
         prefab_id = "roseaxe",
-        base_damage = 42,
+        base_damage = 35,
         attack_range = 1,
         walk_speed_multiplier = 1.25,
-        planar_damage = 20,
+        planar_damage = 30,
+        max_uses = 250,
         dapperness = 0,
         light_preset = "warm",
 
@@ -375,7 +379,7 @@ local equip_data = {
             },
             tri_circle = {
                 enabled = true,
-                max_health_damage_percent = 3,
+                max_health_damage_percent = 2.5,
             },
             combo = {
                 enabled = false,
@@ -419,10 +423,11 @@ local equip_data = {
     },
     rosefrostwand = {
         prefab_id = "rosefrostwand",
-        base_damage = 42,
+        base_damage = 30,
         attack_range = 1.5,
         walk_speed_multiplier = 1.25,
-        planar_damage = 20,
+        planar_damage = 30,
+        max_uses = 250,
         dapperness = 0,
         light_preset = "cool",
 
@@ -456,7 +461,7 @@ local equip_data = {
             },
             ice = {
                 enabled = true,
-                chance = 25,
+                chance = 30,
                 coldness = 2,
             },
             stun = {
@@ -510,10 +515,11 @@ local equip_data = {
     },
     rosegunflag = {
         prefab_id = "rosegunflag",
-        base_damage = 42,
+        base_damage = 30,
         attack_range = 1.5,
         walk_speed_multiplier = 1.25,
-        planar_damage = 20,
+        planar_damage = 30,
+        max_uses = 250,
         dapperness = 0,
         light_preset = "warm",
 
@@ -540,7 +546,7 @@ local equip_data = {
             },
             fire = {
                 enabled = true,
-                chance = 10,
+                chance = 12,
                 effect_duration = 5,
                 tick_damage = 5,
                 tick_period = 1,
@@ -604,7 +610,7 @@ local equip_data = {
         base_damage = 42,
         attack_range = 1.5,
         walk_speed_multiplier = 1.25,
-        planar_damage = 20,
+        planar_damage = 30,
         dapperness = 0,
         light_preset = "cool",
 
@@ -707,10 +713,11 @@ local equip_data = {
     },
     rosescissors = {
         prefab_id = "rosescissors",
-        base_damage = 42,
+        base_damage = 30,
         attack_range = 1.2,
         walk_speed_multiplier = 1.25,
-        planar_damage = 20,
+        planar_damage = 30,
+        max_uses = 250,
         dapperness = 0,
         light_preset = "warm",
 
@@ -779,7 +786,7 @@ local equip_data = {
             },
             hamstring = {
                 enabled = true,
-                charge_chance = 0.2,
+                charge_chance = 0.25,
                 required_charge_count = 5,
                 tick_damage = 8,
                 check_period = 0.01,
