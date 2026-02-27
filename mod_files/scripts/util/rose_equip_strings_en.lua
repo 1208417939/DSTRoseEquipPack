@@ -106,7 +106,7 @@ STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES.SUCCESS = "Power of the rose, repair comple
 STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES.CROWSCYTHE_SUCCESS = {
     "Is this all you brought to feed me?",
     "You call this scrap a worthy offering?",
-    "Bring me a proper tribute next time, if you can.",
+    "Bring a proper tribute next time, if you can.",
 }
 
 -- durability lines

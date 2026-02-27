@@ -32,6 +32,14 @@ client_only_mod = false
 icon_atlas = "modicon.xml"
 icon = "modicon.tex"
 
+---@param zh string
+---@param en string
+---@return string
+---@description 根据当前语言返回中文或英文文案。
+local function L(zh, en)
+    return cn and zh or en
+end
+
 ---@param title string
 ---@return table
 ---@description 生成只读标题配置项。
@@ -56,8 +64,8 @@ local function OnOffOption(config_key, label, default_value, hover)
         label = label,
         hover = hover or "",
         options = {
-            { description = "Enabled", data = true },
-            { description = "Disabled", data = false },
+            { description = L("启用", "Enabled"), data = true },
+            { description = L("禁用", "Disabled"), data = false },
         },
         default = default_value,
     }
@@ -71,10 +79,10 @@ local function LanguageOption(config_key, label)
     return {
         name = config_key,
         label = label,
-        hover = "",
+        hover = L("设置本模组的文本语言。", "Set text language for this mod pack."),
         options = {
-            { description = "English", data = "EN" },
-            { description = "Chinese (Simplified)", data = "CHS" },
+            { description = L("英文", "English"), data = "EN" },
+            { description = L("简体中文", "Chinese (Simplified)"), data = "CHS" },
         },
         default = cn and "CHS" or "EN",
     }
@@ -88,33 +96,41 @@ local function DifficultyModeOption(config_key, label)
     return {
         name = config_key,
         label = label,
-        hover = cn
-            and "萌新：暗影操纵器配方。原版：除黑鸦镰刀/自然法杖外为辉煌铁匠铺；黑鸦镰刀为暗影术基座（以上均不可解锁，仅站旁制作）；自然法杖为完整远古站解锁。"
-            or "Newbie: Shadow Manipulator recipes. Vanilla: Most weapons use the Lunar Forge, Crow Scythe uses the Shadow Forge (both nounlock + station-only), and Nature Tools Wand stays Ancient Four unlock.",
+        hover = L(
+            "萌新：暗影操纵器配方。原版：除黑鸦镰刀/自然法杖外为辉煌铁匠铺；黑鸦镰刀为暗影术基座（以上均不可解锁，仅站旁制作）；自然法杖为完整远古站解锁。",
+            "Newbie: Shadow Manipulator recipes. Vanilla: Most weapons use the Lunar Forge, Crow Scythe uses the Shadow Forge (both nounlock + station-only), and Nature Tools Wand keeps Ancient Four unlock."
+        ),
         options = {
-            { description = cn and "萌新" or "Newbie", data = "newbie" },
-            { description = cn and "原版" or "Vanilla", data = "vanilla" },
+            { description = L("萌新", "Newbie"), data = "newbie" },
+            { description = L("原版", "Vanilla"), data = "vanilla" },
         },
         default = "newbie",
     }
 end
 
 configuration_options = {
-    Title("Language"),
-    LanguageOption("lang_rose_equip_pack", "Pack Language"),
-    Title("Difficulty"),
-    DifficultyModeOption("rose_equip_pack_difficulty_mode", "Difficulty Mode"),
-    Title("Global Toggles"),
+    Title(L("语言", "Language")),
+    LanguageOption("lang_rose_equip_pack", L("模组语言", "Pack Language")),
+    Title(L("难度", "Difficulty")),
+    DifficultyModeOption("rose_equip_pack_difficulty_mode", L("难度模式", "Difficulty Mode")),
+    Title(L("全局开关", "Global Toggles")),
     OnOffOption(
         "rose_equip_pack_repairable_enabled",
-        "Repairable Mode (All Weapons)",
+        L("可修复模式（全部武器）", "Repairable Mode (All Weapons)"),
         true,
-        cn and "开启后武器耐久归零不消失，可用修补材料恢复；归零期间功能完全禁用。"
-            or "When enabled, weapons do not disappear at 0 durability and can be repaired; functionality is fully disabled until repaired."
+        L(
+            "开启后武器耐久归零不消失，可用修补材料恢复；归零期间功能完全禁用。",
+            "When enabled, weapons do not disappear at 0 durability and can be repaired; functionality is fully disabled until repaired."
+        )
     ),
 
-    Title("Rose Axe Toggles"),
-    OnOffOption("roseaxe_enabled", "Weapon Enabled", true, "Master switch for roseaxe runtime abilities."),
+    Title(L("玫瑰斧开关", "Rose Axe Toggles")),
+    OnOffOption(
+        "roseaxe_enabled",
+        L("武器总开关", "Weapon Enabled"),
+        true,
+        L("玫瑰斧运行时能力总开关。", "Master switch for Rose Axe runtime abilities.")
+    ),
     -- OnOffOption("roseaxe_combo_enabled", "Combo", true),
     -- OnOffOption("roseaxe_critical_enabled", "Critical", true),
     -- OnOffOption("roseaxe_behead_enabled", "Behead", false),
@@ -128,8 +144,13 @@ configuration_options = {
     -- -- OnOffOption("roseaxe_upgrade_by_gold_enabled", "Upgrade by Gold", false),
     -- OnOffOption("roseaxe_tri_circle_enabled", "Tri Circle", true),
 
-    Title("Rose Gun Flag Toggles"),
-    OnOffOption("rosegunflag_enabled", "Weapon Enabled", true, "Master switch for rosegunflag runtime abilities."),
+    Title(L("玫瑰枪旗开关", "Rose Gun Flag Toggles")),
+    OnOffOption(
+        "rosegunflag_enabled",
+        L("武器总开关", "Weapon Enabled"),
+        true,
+        L("玫瑰枪旗运行时能力总开关。", "Master switch for Rose Gun Flag runtime abilities.")
+    ),
     -- OnOffOption("rosegunflag_combo_enabled", "Combo", true),
     -- OnOffOption("rosegunflag_critical_enabled", "Critical", true),
     -- OnOffOption("rosegunflag_behead_enabled", "Behead", false),
@@ -143,8 +164,13 @@ configuration_options = {
     -- -- OnOffOption("rosegunflag_upgrade_by_gold_enabled", "Upgrade by Gold", true),
     -- OnOffOption("rosegunflag_tri_circle_enabled", "Tri Circle", false),
 
-    Title("Rose Scissors Toggles"),
-    OnOffOption("rosescissors_enabled", "Weapon Enabled", true, "Master switch for rosescissors runtime abilities."),
+    Title(L("玫瑰剪刀开关", "Rose Scissors Toggles")),
+    OnOffOption(
+        "rosescissors_enabled",
+        L("武器总开关", "Weapon Enabled"),
+        true,
+        L("玫瑰剪刀运行时能力总开关。", "Master switch for Rose Scissors runtime abilities.")
+    ),
     -- OnOffOption("rosescissors_combo_enabled", "Combo", true),
     -- OnOffOption("rosescissors_critical_enabled", "Critical", true),
     -- OnOffOption("rosescissors_behead_enabled", "Behead", false),
@@ -158,8 +184,13 @@ configuration_options = {
     -- -- OnOffOption("rosescissors_upgrade_by_gold_enabled", "Upgrade by Gold", false),
     -- OnOffOption("rosescissors_tri_circle_enabled", "Tri Circle", false),
 
-    Title("Rose Parasol Toggles"),
-    OnOffOption("roseparasol_enabled", "Weapon Enabled", true, "Master switch for roseparasol runtime abilities."),
+    Title(L("玫瑰伞开关", "Rose Parasol Toggles")),
+    OnOffOption(
+        "roseparasol_enabled",
+        L("武器总开关", "Weapon Enabled"),
+        true,
+        L("玫瑰伞运行时能力总开关。", "Master switch for Rose Parasol runtime abilities.")
+    ),
     -- OnOffOption("roseparasol_combo_enabled", "Combo", false),
     -- OnOffOption("roseparasol_critical_enabled", "Critical", true),
     -- OnOffOption("roseparasol_behead_enabled", "Behead", false),
@@ -175,8 +206,13 @@ configuration_options = {
     -- OnOffOption("roseparasol_waterproof_enabled", "Waterproof", true),
     -- OnOffOption("roseparasol_walk_on_water_enabled", "Walk On Water", false, "Enable sea-walking behavior for Rose Parasol."),
 
-    Title("Rose Frost Wand Toggles"),
-    OnOffOption("rosefrostwand_enabled", "Weapon Enabled", true, "Master switch for rosefrostwand runtime abilities."),
+    Title(L("玫瑰霜杖开关", "Rose Frost Wand Toggles")),
+    OnOffOption(
+        "rosefrostwand_enabled",
+        L("武器总开关", "Weapon Enabled"),
+        true,
+        L("玫瑰霜杖运行时能力总开关。", "Master switch for Rose Frost Wand runtime abilities.")
+    ),
     -- OnOffOption("rosefrostwand_combo_enabled", "Combo", false),
     -- OnOffOption("rosefrostwand_critical_enabled", "Critical", true),
     -- OnOffOption("rosefrostwand_behead_enabled", "Behead", false),
@@ -190,8 +226,13 @@ configuration_options = {
     -- -- OnOffOption("rosefrostwand_upgrade_by_gold_enabled", "Upgrade by Gold", false),
     -- OnOffOption("rosefrostwand_tri_circle_enabled", "Tri Circle", false),
 
-    Title("Ocean Trident Toggles"),
-    OnOffOption("oceantrident_enabled", "Weapon Enabled", true, "Master switch for oceantrident runtime abilities."),
+    Title(L("海洋三叉戟开关", "Ocean Trident Toggles")),
+    OnOffOption(
+        "oceantrident_enabled",
+        L("武器总开关", "Weapon Enabled"),
+        true,
+        L("海洋三叉戟运行时能力总开关。", "Master switch for Ocean Trident runtime abilities.")
+    ),
     -- OnOffOption("oceantrident_combo_enabled", "Combo", false),
     -- OnOffOption("oceantrident_critical_enabled", "Critical", true),
     -- OnOffOption("oceantrident_behead_enabled", "Behead", false),
@@ -207,14 +248,18 @@ configuration_options = {
     -- OnOffOption("oceantrident_waterproof_enabled", "Waterproof", true),
     -- OnOffOption("oceantrident_walk_on_water_enabled", "Walk On Water", false, "Enable sea-walking behavior for Ocean Trident."),
 
-    Title("Crow Scythe Toggles"),
-    OnOffOption("crowscythe_enabled", "Weapon Enabled", true, "Master switch for crowscythe runtime abilities."),
+    Title(L("黑鸦镰刀开关", "Crow Scythe Toggles")),
+    OnOffOption(
+        "crowscythe_enabled",
+        L("武器总开关", "Weapon Enabled"),
+        true,
+        L("黑鸦镰刀运行时能力总开关。", "Master switch for Crow Scythe runtime abilities.")
+    ),
     OnOffOption(
         "crowscythe_sentient_talk_enabled",
-        "Crow Talking",
+        L("乌鸦说话", "Crow Talking"),
         true,
-        cn and "开启/关闭乌鸦镰刀的活物说话行为。"
-            or "Enable or disable sentient crow speech for the Crow Scythe."
+        L("开启/关闭黑鸦镰刀的活物说话行为。", "Enable or disable sentient crow speech for the Crow Scythe.")
     ),
     -- OnOffOption("crowscythe_combo_enabled", "Combo", true),
     -- OnOffOption("crowscythe_critical_enabled", "Critical", true),
@@ -229,8 +274,13 @@ configuration_options = {
     -- -- OnOffOption("crowscythe_upgrade_by_gold_enabled", "Upgrade by Gold", false),
     -- OnOffOption("crowscythe_tri_circle_enabled", "Tri Circle", false),
 
-    Title("Nature Tools Wand Toggles"),
-    OnOffOption("naturetoolswand_enabled", "Weapon Enabled", true, "Master switch for naturetoolswand runtime abilities."),
+    Title(L("自然法杖开关", "Nature Tools Wand Toggles")),
+    OnOffOption(
+        "naturetoolswand_enabled",
+        L("武器总开关", "Weapon Enabled"),
+        true,
+        L("自然法杖运行时能力总开关。", "Master switch for Nature Tools Wand runtime abilities.")
+    ),
     -- OnOffOption("naturetoolswand_combo_enabled", "Combo", false),
     -- OnOffOption("naturetoolswand_critical_enabled", "Critical", false),
     -- OnOffOption("naturetoolswand_behead_enabled", "Behead", false),

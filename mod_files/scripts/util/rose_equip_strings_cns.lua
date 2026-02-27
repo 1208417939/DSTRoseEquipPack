@@ -105,8 +105,8 @@ STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES.INVALID = "也许我该换个材料。"
 STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES.SUCCESS = "玫瑰之力，修复成功！"
 STRINGS.ROSE_EQUIP_PACK_REPAIR_LINES.CROWSCYTHE_SUCCESS = {
     "就这点东西喂我吗？",
-    "你拿这点破烂，也想安抚我的饥饿？",
-    "再去找点像样的祭品来，别让我失望。",
+    "你拿这点破烂糊弄我？",
+    "再去找点像样的祭品来！",
 }
 
 -- durability lines
