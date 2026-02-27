@@ -112,7 +112,7 @@ local function on_pre_load(inst, _data)
 end
 
 local function on_inventory_dropped(inst)
-    set_weapon_light(inst, false)
+    set_weapon_light(inst, is_light_enabled())
     sakura_fx_controller.set_emitter_state(inst, false)
 end
 
@@ -169,4 +169,5 @@ local function fn()
 end
 
 return Prefab("common/inventory/" .. prefab_id, fn, assets, prefabs)
+
 
